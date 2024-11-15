@@ -1,0 +1,48 @@
+{% extends 'base.html' %} {% block title %}Главное меню {% endblock %} {% block
+breadcrumbs %}{% include 'components/breadcrumbs.html' %}{% endblock %} {% block
+content %}
+<div class="container">
+  <form
+    action="#"
+    method="get"
+    style="display: flex; flex-direction: column; row-gap: 10px; width: 60%"
+  >
+    <label for="name">Название товара:</label>
+    <input
+      type="text"
+      id="name"
+      name="name"
+      placeholder="Введите название товара"
+    />
+
+    <label for="category">Категория:</label>
+    <select id="category" name="category">
+      <option value="">Выберите категорию</option>
+      <option value="electronics">Электроника</option>
+      <option value="furniture">Мебель</option>
+      <option value="clothing">Одежда</option>
+      <option value="toys">Игрушки</option>
+    </select>
+
+    <label for="price-min">Цена от:</label>
+    <input
+      type="number"
+      id="price-min"
+      name="price-min"
+      placeholder="Мин. цена"
+      min="0"
+    />
+
+    <label for="price-max">Цена до:</label>
+    <input
+      type="number"
+      id="price-max"
+      name="price-max"
+      placeholder="Макс. цена"
+      min="0"
+    />
+
+    <button type="submit">Поиск</button>
+  </form>
+</div>
+{% endblock %}

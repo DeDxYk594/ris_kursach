@@ -1,0 +1,39 @@
+{% extends 'base.html' %} {% block title %}Главное меню {% endblock %} {% block
+breadcrumbs %}{% include 'components/breadcrumbs.html' %}{% endblock %} {% block content %}
+<div class="container">
+  <h2>Главное меню</h2>
+  <div>
+    <a class="link" href="/personal"><i class="bi-person"></i>Личный кабинет</a>
+  </div>
+  <div>
+    <a class="link" href="/goods"><i class="bi-search"></i>Поиск товаров</a>
+  </div>
+  <div>
+    <a class="link" href="/orders/create"
+      ><i class="bi-cart-plus"></i>Создание заказа</a
+    >
+  </div>
+  <div>
+    <a class="link" href="/orders"
+      ><i class="bi-layers"></i>Список сформированных заказов</a
+    >
+  </div>
+  <div>
+    <a class="link" href="/"><i class="bi-safe"></i>Касса</a>
+  </div>
+  <div>
+    <a class="link" href="/"><i class="bi-box2"></i>Оставшиеся партии товара</a>
+  </div>
+  <div>
+    <a class="link" href="/"><i class="bi-list-check"></i>Отчёты о продажах</a>
+  </div>
+  <div>
+    <a class="link" href="/"
+      ><i class="bi-house-check"></i>Оформление поступления товара</a
+    >
+  </div>
+  <div>
+    <a class="link" href="/"><i class="bi-trash3"></i>Списание товара</a>
+  </div>
+</div>
+{% endblock %}

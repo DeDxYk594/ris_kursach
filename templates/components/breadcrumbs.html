@@ -1,0 +1,20 @@
+<div style="display: flex; flex-direction: row">
+  {% for breadcrumb in breadcrumbs %}
+  <div style="margin: 0 10px">&gt;</div>
+  <div class="breadcrumb-item">
+    {% if breadcrumb.link %}
+    <a href="{{ breadcrumb.link }}" class="link"
+      >{% if breadcrumb.icon %}
+      <i class="{{ breadcrumb.icon }}"></i>
+      {% endif %}{{ breadcrumb.text }}</a
+    >
+    {% else %}
+    <span
+      >{% if breadcrumb.icon %}
+      <i class="{{ breadcrumb.icon }}"></i>
+      {% endif %}{{ breadcrumb.text }}</span
+    >
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
