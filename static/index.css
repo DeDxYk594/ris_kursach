@@ -68,3 +68,20 @@ body {
   display: flex;
   flex-direction: column;
 }
+.goods-table {
+  display: grid;
+  grid-template-columns: 1fr 5fr 1fr 1fr 1fr;
+  background-color: rgba(20, 100, 255, 0.1);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.goods-table__item {
+  padding: 3px;
+}
+
+.goods-table__header {
+  text-decoration: underline;
+  font-weight: bold;
+  margin-bottom: 5px;
+}

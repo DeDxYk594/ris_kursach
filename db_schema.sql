@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS `user` (
     u_id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     username VARCHAR(100) UNIQUE NOT NULL,
+    real_name VARCHAR(100) NOT NULL,
     created_at DATE NOT NULL DEFAULT NOW(),
     updated_at DATE NOT NULL DEFAULT NOW(),
     role ENUM('customer','sales_manager','supply_manager','boss') NOT NULL,
@@ -10,7 +11,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 CREATE TABLE IF NOT EXISTS `session` (
     session_id VARCHAR(64) PRIMARY KEY, -- SHA256 HEX digest
     user_id INTEGER NOT NULL,
-    user_id_fk FOREIGN KEY user_id REFERENCES TO user.u_id
+    user_id_fk FOREIGN KEY user_id REFERENCES TO user.u_id ON UPDATE CASCADE ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS `goodtype` (
     goodtype_id INTEGER PRIMARY KEY NOT NULL,
@@ -81,8 +82,9 @@ CREATE TABLE IF NOT EXISTS `dim_goodtype` (
 CREATE TABLE `fct_sales_report` (
     dim_time_id INTEGER,
     dim_goodtype_id INTEGER,
+    units_sold INTEGER NOT NULL,
+    money_sold INTEGER NOT NULL,
+    units_supplied INTEGER NOT NULL,
+    money_supplied INTEGER NOT NULL,
     PRIMARY KEY (dim_time_id, dim_goodtype_id)
-);
-CREATE TABLE `fct_supply_report` (
-
 );
