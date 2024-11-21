@@ -1,2 +1,2 @@
 DELETE FROM `session`
-WHERE session_id=% OR valid_until<NOW();
+WHERE session_id=%s OR valid_until<NOW();

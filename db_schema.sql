@@ -58,10 +58,12 @@ CREATE TABLE IF NOT EXISTS `order` (
 CREATE TABLE IF NOT EXISTS `batch` (
     batch_id          INTEGER  PRIMARY KEY AUTO_INCREMENT,
     supplied_at       DATETIME NOT NULL,
+    updated_at        DATETIME NOT NULL,
     supply_unit_price INTEGER  NOT NULL,
     supply_size       INTEGER  NOT NULL,
     units_left        INTEGER  NOT NULL,
     goodtype_id       INTEGER  NOT NULL,
+
     goodtype_id_fk FOREIGN KEY goodtype_id REFERENCES TO goodtype.goodtype_id
 );
 

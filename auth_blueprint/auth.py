@@ -1,68 +1,49 @@
-from flask import Blueprint, render_template, request, make_response, redirect, url_for
+from functools import wraps
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    make_response,
+    redirect,
+    url_for,
+    g,
+    abort,
+)
 import hashlib
 from datetime import datetime, timedelta
 from database import SQLContextManager, SQLProvider
+import bcrypt
+from typing import Callable
 
-provider = SQLProvider("sql")
-
+from . import model
 
 authBlueprint = Blueprint("auth", __name__, template_folder="templates")
 
 
-def hash_password(password):
-    ret = hashlib.sha256(password.encode()).hexdigest()
-    print(f"Hash for password '{password}': '{ret}'")
-    return ret
+def hash_password(password: str):
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt())
 
 
-def check_password(old_password_hash, password_candidate) -> bool:
-    pass
+def check_password(old_password_hash: str, password_candidate: str) -> bool:
+    return bcrypt.checkpw(
+        password_candidate.encode(), hashed_password=old_password_hash.encode()
+    )
 
 
 @authBlueprint.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        login = request.form["login"]
+        username = request.form["username"]
         password = request.form["password"]
         hashed_password = hash_password(password)
 
-        with SQLContextManager() as cur:
-            print(login, hashed_password)
-            cur.execute(
-                provider.get("get_user_by_creds.sql"),
-                (login, hashed_password),
-            )
-            user = cur.fetchone()
+        print(username, hashed_password)
+        user = model.get_user(login)
+        if user is None:
+            return
 
-            if user:
-                session_id = str(
-                    eval(
-                        "0x"
-                        + hashlib.sha256(
-                            f"{login}{datetime.now()}".encode()
-                        ).hexdigest()
-                    )
-                    % (1 << 31)
-                )
-                expiry_date = datetime.now() + timedelta(days=1)
-                cur.execute(
-                    provider.get("insert_session.sql"),
-                    (
-                        session_id,
-                        expiry_date.strftime("%Y-%m-%d %H:%M:%S"),
-                        str(user[0]),
-                    ),
-                )
-
-                resp = make_response(
-                    redirect(url_for(request.args.get("next", "app.glavn_menu")))
-                )
-                resp.set_cookie(
-                    "sessionId", session_id, samesite="Lax", httponly=True, secure=True
-                )
-                return resp
-            else:
-                return render_template("login.html", error="Invalid credentials")
+        else:
+            return render_template("login.html", error="Invalid credentials")
     return render_template("login.html")
 
 
@@ -86,21 +67,72 @@ def logout():
 def authenticate_user():
     session_id = get_session_id_from_request()
 
-    if session_id is None:
-        request.user_id = None
-    else:
-        with SQLContextManager() as cur:
-            cur.execute(
-                provider.get("get_user_id_from_session.sql"),
-                (str(session_id),),
-            )
-            user = cur.fetchone()
-
-            if not user:
-                request.user_id = None
-            else:
-                request.user_id = user[0]
-
 
 def get_session_id_from_request():
     return request.cookies.get("sessionId", None)
+
+
+def login_required(f: Callable) -> Callable:
+    """
+    Декоратор для проверки аутентификации пользователя.
+    Добавляет `g.user` и `g.role` в контекст запроса.
+    """
+
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        session_id = get_session_id_from_request()
+        if not session_id:
+            abort(401, description="Unauthorized: No session_id provided.")
+
+        user = check_login(session_id)
+        if not user:
+            abort(401, description="Unauthorized: Invalid session.")
+
+        role = get_role(session_id)
+        if not role:
+            abort(403, description="Forbidden: Role not found.")
+
+        # Добавляем user и role в контекст запроса
+        g.user = user
+        g.role = role
+
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
+def role_required(required_role: str) -> Callable:
+    """
+    Декоратор для проверки роли пользователя.
+    Наследуется от `login_required` и дополнительно проверяет роль.
+    Добавляет `g.user` и `g.role` в контекст запроса.
+    """
+
+    def decorator(f: Callable) -> Callable:
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            # Используем login_required для проверки аутентификации
+            session_id = get_session_id_from_request()
+            if not session_id:
+                abort(401, description="Unauthorized: No session_id provided.")
+
+            user = check_login(session_id)
+            if not user:
+                abort(401, description="Unauthorized: Invalid session.")
+
+            role = get_role(session_id)
+            if not role:
+                abort(403, description="Forbidden: Role not found.")
+
+            if role != required_role:
+                abort(403, description=f"Forbidden: Requires role '{required_role}'.")
+
+            # Добавляем user и role в контекст запроса
+            g.user = user
+            g.role = role
+
+            return f(*args, **kwargs)
+
+        return decorated_function
+
+    return decorator
