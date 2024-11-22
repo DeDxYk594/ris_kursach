@@ -1,0 +1,46 @@
+{% extends "components/bare.html" %} {% block title %}Вход в систему{% endblock
+%} {% block body %}
+<div class="container">
+  <div style="height: 20vh"></div>
+  <h1>Вход в АИС "Мой склад"</h1>
+  <form>
+    <div class="form-group">
+      <label for="exampleInputEmail1">Имя пользователя</label>
+      <input
+        type="text"
+        class="form-control"
+        id="username"
+        placeholder="Имя пользователя"
+      />
+    </div>
+    <div class="form-group">
+      <label for="exampleInputPassword1">Пароль</label>
+      <input
+        type="password"
+        class="form-control"
+        id="password"
+        placeholder="Пароль"
+      />
+    </div>
+    <div class="form-group form-check">
+      <input type="checkbox" class="form-check-input" id="showpassword" />
+      <label class="form-check-label" for="exampleCheck1"
+        >Показать пароль</label
+      >
+    </div>
+    <button type="submit" class="btn btn-primary">Войти</button>
+  </form>
+  <script>
+    var flag = true;
+    check = document.getElementById("showpassword");
+    check.addEventListener("click", (ev) => {
+      if (flag) {
+        document.getElementById("password").type = "text";
+      } else {
+        document.getElementById("password").type = "password";
+      }
+      flag = !flag;
+    });
+  </script>
+</div>
+{% endblock %}

@@ -29,6 +29,7 @@ def check_session(session_id: str) -> User | None:
             ],
         )
         row = cur.fetchone()
+        print("ROW: ", row)
         if row is None:
             return None
         ret = User(

@@ -16,6 +16,7 @@ import bcrypt
 from typing import Callable
 
 from . import model
+from .model import User
 
 authBlueprint = Blueprint("auth", __name__, template_folder="templates")
 
@@ -64,44 +65,26 @@ def logout():
     return resp
 
 
-def authenticate_user():
-    session_id = get_session_id_from_request()
+def authenticate_user() -> User | None:
+    got_user = g.get("user", None)
+    if got_user == 0:
+        return None
+    if got_user is None:
+        session_id = get_session_id_from_request()
+        user = model.check_session(session_id)
+        if user is None:
+            g.user = 0
+        else:
+            g.user = user
+        return user
+    return g.user
 
 
 def get_session_id_from_request():
     return request.cookies.get("sessionId", None)
 
 
-def login_required(f: Callable) -> Callable:
-    """
-    Декоратор для проверки аутентификации пользователя.
-    Добавляет `g.user` и `g.role` в контекст запроса.
-    """
-
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        session_id = get_session_id_from_request()
-        if not session_id:
-            abort(401, description="Unauthorized: No session_id provided.")
-
-        user = check_login(session_id)
-        if not user:
-            abort(401, description="Unauthorized: Invalid session.")
-
-        role = get_role(session_id)
-        if not role:
-            abort(403, description="Forbidden: Role not found.")
-
-        # Добавляем user и role в контекст запроса
-        g.user = user
-        g.role = role
-
-        return f(*args, **kwargs)
-
-    return decorated_function
-
-
-def role_required(required_role: str) -> Callable:
+def login_required(allowed_roles: list[str] = []) -> Callable:
     """
     Декоратор для проверки роли пользователя.
     Наследуется от `login_required` и дополнительно проверяет роль.
@@ -114,22 +97,14 @@ def role_required(required_role: str) -> Callable:
             # Используем login_required для проверки аутентификации
             session_id = get_session_id_from_request()
             if not session_id:
-                abort(401, description="Unauthorized: No session_id provided.")
+                abort(redirect("/login"))
 
-            user = check_login(session_id)
-            if not user:
-                abort(401, description="Unauthorized: Invalid session.")
+            user = authenticate_user()
+            if user is None:
+                abort(redirect("/login"))
 
-            role = get_role(session_id)
-            if not role:
-                abort(403, description="Forbidden: Role not found.")
-
-            if role != required_role:
-                abort(403, description=f"Forbidden: Requires role '{required_role}'.")
-
-            # Добавляем user и role в контекст запроса
-            g.user = user
-            g.role = role
+            if len(allowed_roles) != 0 and (user.role not in allowed_roles):
+                abort(redirect("/no_access"))
 
             return f(*args, **kwargs)
 

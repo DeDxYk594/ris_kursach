@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS `user` (
-    u_id       INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    u_id       INTEGER PRIMARY KEY AUTO_INCREMENT,
     username   TEXT    UNIQUE NOT NULL,
     real_name  TEXT    NOT NULL,
     created_at DATE    NOT NULL DEFAULT NOW(),
@@ -17,10 +17,23 @@ CREATE TABLE IF NOT EXISTS `session` (
     user_id_fk FOREIGN KEY user_id REFERENCES TO user.u_id ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS `category` (
+    category_id   INTEGER PRIMARY KEY AUTO_INCREMENT,
+    category_name TEXT    NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS `goodtype` (
-    goodtype_id  INTEGER PRIMARY KEY NOT NULL,
+    goodtype_id  INTEGER PRIMARY KEY AUTO_INCREMENT,
+    article      INTEGER NOT NULL,
     name         TEXT    NOT NULL,
-    measure_unit TEXT NOT NULL
+    category_id  INTEGER NOT NULL,
+    is_hidden    BOOLEAN NOT NULL DEFAULT FALSE,
+    measure_unit TEXT    NOT NULL,
+    has_units    INTEGER NOT NULL,
+    booked_units INTEGER NOT NULL,
+    sell_price   INTEGER NOT NULL,
+
+    category_id_fk FOREIGN KEY category_id REFERENCES TO category.category_id
 );
 
 CREATE TABLE IF NOT EXISTS `customer` (

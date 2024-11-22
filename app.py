@@ -1,9 +1,18 @@
 from flask import Flask, render_template
+from auth_blueprint import login_required, authBlueprint
+from database import init_mysql
+import json
 
 app = Flask(__name__)
 
+with open("db_config.json") as f:
+    app.config["db_config"] = json.load(f)
+
+init_mysql(app)
+
 
 @app.route("/")
+# @login_required()
 def main_menu():
     breadcrumbs = [
         {"text": "Главное меню", "link": "/", "icon": "bi-house"},
@@ -31,6 +40,8 @@ def search():
 
     return render_template("search.html", breadcrumbs=breadcrumbs)
 
+
+app.register_blueprint(authBlueprint)
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5001, debug=True)

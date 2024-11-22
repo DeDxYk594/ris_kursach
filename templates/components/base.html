@@ -1,0 +1,26 @@
+{% extends "components/bare.html" %}
+
+{% block body %}
+    <nav class="navbar">
+      <div style="display: flex; flex-direction: row; align-items: center">
+        <img src="/static/logo.jpg" class="navbar__logo" />
+        <div class="navbar__is-name">АИС "Наш Склад"</div>
+      </div>
+      <div class="user-status">
+        <div class="user-status__username">
+          <div style="font-weight: bold">Zhukov Georgiy</div>
+          <div>Покупатель</div>
+        </div>
+        <div>
+          <a class="link" href="/logout" style="color: white">
+            <i class="bi-box-arrow-right" style="margin-right: 3px"></i>Выйти
+          </a>
+        </div>
+      </div>
+    </nav>
+    <div class="base__content-container">
+      {% block breadcrumbs %} {% endblock %}
+      <hr />
+      {% block content %}{% endblock %}
+    </div>
+{% endblock %}
