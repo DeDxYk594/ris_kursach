@@ -1,6 +1,7 @@
-from flask import Flask
+from flask import Flask, current_app
 from pymysql.cursors import Cursor
 from pymysql import connect
+from pymysql.err import OperationalError, ProgrammingError
 import os
 
 
@@ -14,12 +15,16 @@ def init_mysql(app: Flask):
 
 class SQLProvider:
     def __init__(self, file_path):
+        self._file_path = file_path
         self.scripts = {}
         for file in os.listdir(file_path):
             sql = open(f"{file_path}/{file}").read()
             self.scripts[file] = sql
 
     def get(self, file) -> str:
+        if current_app.debug:
+            with open(f"{self._file_path}/{file}") as f:
+                return f.read()
         return self.scripts[file]
 
 
@@ -35,6 +40,8 @@ class SQLContextManager:
         # в параметрах метода лежат ошибки, которые передаёт sql сервер при ошибке
         if exc_type:
             print(exc_type)
+            if exc_type in [OperationalError, ProgrammingError]:
+                raise
         if self.cursor:
             if exc_type:
                 # если на этапе выполнения произошли ошибки, но курсор при этом открыт, то скорее всего это транзакция и её надо откатить

@@ -9,14 +9,13 @@ from flask import (
     g,
     abort,
 )
-import hashlib
-from datetime import datetime, timedelta
-from database import SQLContextManager, SQLProvider
+from database import SQLContextManager
 import bcrypt
 from typing import Callable
-
 from . import model
 from .model import User
+
+SESSION_COOKIE_NAME = "session_id"
 
 authBlueprint = Blueprint("auth", __name__, template_folder="templates")
 
@@ -36,44 +35,50 @@ def login():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-        hashed_password = hash_password(password)
 
-        print(username, hashed_password)
-        user = model.get_user(login)
+        user = model.get_user(username)
         if user is None:
-            return
+            return render_template(
+                "login.html",
+                errors={"username": "Такого пользователя не существует"},
+                username=username,
+            )
 
-        else:
-            return render_template("login.html", error="Invalid credentials")
-    return render_template("login.html")
+        if not check_password(user.password_hash, password):
+            return render_template(
+                "login.html",
+                errors={"password": "Неправильный пароль"},
+                username=username,
+            )
+        session_id = model.insert_session(user.u_id)
+        resp = make_response(redirect(request.args.get("next", "/")))
+        resp.set_cookie(SESSION_COOKIE_NAME, session_id)
+        return resp
+    return render_template("login.html", errors={})
 
 
 @authBlueprint.route("/logout")
 def logout():
-    session_id = request.cookies.get("sessionId")
+    session_id = request.cookies.get(SESSION_COOKIE_NAME)
     if not session_id:
-        return redirect(url_for("auth.login", next=url_for("glavn_menu")))
+        return redirect(url_for("auth.login", next="main_menu"))
 
-    with SQLContextManager() as cur:
-        cur.execute(
-            provider.get("delete_session.sql"),
-            (str(session_id),),
-        )
+    model.delete_session(session_id)
 
-    resp = make_response(redirect(url_for("glavn_menu")))
-    resp.delete_cookie("sessionId")
+    resp = make_response(redirect(request.args.get("next", "/login")))
+    resp.delete_cookie(SESSION_COOKIE_NAME)
     return resp
 
 
 def authenticate_user() -> User | None:
-    got_user = g.get("user", None)
-    if got_user == 0:
-        return None
+    got_user = g.get("user", 0)
     if got_user is None:
+        return None
+    if got_user == 0:
         session_id = get_session_id_from_request()
         user = model.check_session(session_id)
         if user is None:
-            g.user = 0
+            g.user = None
         else:
             g.user = user
         return user
@@ -81,14 +86,14 @@ def authenticate_user() -> User | None:
 
 
 def get_session_id_from_request():
-    return request.cookies.get("sessionId", None)
+    return request.cookies.get(SESSION_COOKIE_NAME, None)
 
 
 def login_required(allowed_roles: list[str] = []) -> Callable:
     """
     Декоратор для проверки роли пользователя.
-    Наследуется от `login_required` и дополнительно проверяет роль.
-    Добавляет `g.user` и `g.role` в контекст запроса.
+    Проверяет логин и дополнительно проверяет роль, если указана.
+    Добавляет `g.user` в контекст запроса.
     """
 
     def decorator(f: Callable) -> Callable:
@@ -111,3 +116,17 @@ def login_required(allowed_roles: list[str] = []) -> Callable:
         return decorated_function
 
     return decorator
+
+
+def login_optional(f: Callable) -> Callable:
+    """
+    Декоратор для получения данных о пользователе.
+    Нужен, чтобы в навбаре отображалось имя пользователя.
+    Если пользователь не вошёл, `g.user` устанавливается в None
+    """
+
+    def wrapped(*args, **kwargs) -> Callable:
+        authenticate_user()
+        return f(*args, **kwargs)
+
+    return wrapped

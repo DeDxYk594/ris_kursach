@@ -1,28 +1,39 @@
 {% extends "components/bare.html" %} {% block title %}Вход в систему{% endblock
 %} {% block body %}
-<div class="container">
+<div class="container" style="max-width: 500px">
   <div style="height: 20vh"></div>
   <h1>Вход в АИС "Мой склад"</h1>
-  <form>
-    <div class="form-group">
-      <label for="exampleInputEmail1">Имя пользователя</label>
+  <form method="post">
+    <div class="input-group has-validation mb-3">
       <input
         type="text"
-        class="form-control"
+        class="form-control {{ 'is-invalid' if 'username' in errors else ('is-valid' if 'password' in errors else '') }}"
         id="username"
+        name="username"
+        value="{{ username }}"
         placeholder="Имя пользователя"
+        required
       />
+      {% if errors.username %}
+      <div class="invalid-feedback">{{ errors.username }}</div>
+      {% else %}
+      {% if errors.password %}
+      <div class="valid-feedback">Пользователь существует</div>
+      {% endif %}
+      {% endif %}
     </div>
-    <div class="form-group">
-      <label for="exampleInputPassword1">Пароль</label>
+    <div class="input-group has-validation mb-3">
       <input
         type="password"
-        class="form-control"
+        class="form-control {{ 'is-invalid' if 'password' in errors else '' }}"
         id="password"
+        name="password"
         placeholder="Пароль"
+        required
       />
+      <div class="invalid-feedback">{{ errors.password }}</div>
     </div>
-    <div class="form-group form-check">
+    <div class="form-group form-check mb-3">
       <input type="checkbox" class="form-check-input" id="showpassword" />
       <label class="form-check-label" for="exampleCheck1"
         >Показать пароль</label

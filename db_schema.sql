@@ -1,27 +1,30 @@
+-- Пользователь, который может залогиниться
 CREATE TABLE IF NOT EXISTS `user` (
-    u_id       INTEGER PRIMARY KEY AUTO_INCREMENT,
-    username   TEXT    UNIQUE NOT NULL,
-    real_name  TEXT    NOT NULL,
-    created_at DATE    NOT NULL DEFAULT NOW(),
-    updated_at DATE    NOT NULL DEFAULT NOW(),
+    u_id       INTEGER     PRIMARY KEY AUTO_INCREMENT,
+    username   VARCHAR(30) UNIQUE NOT NULL,
+    real_name  TEXT        NOT NULL,
+    created_at DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     role ENUM('customer','sales_manager','supply_manager','boss') NOT NULL,
-    password_hash TEXT NOT NULL
+    password_hash TEXT     NOT NULL
 );
 
 -- Сессия для Stateful авторизации
 CREATE TABLE IF NOT EXISTS `session` (
-    session_id  TEXT    PRIMARY KEY, -- SHA256 HEX digest
-    u_id        INTEGER NOT NULL,
-    valid_until DATETIME,
+    session_id  VARCHAR(64) PRIMARY KEY, -- SHA256 HEX digest
+    u_id        INTEGER     NOT NULL,
+    valid_until DATETIME    NOT NULL,
 
-    user_id_fk FOREIGN KEY user_id REFERENCES TO user.u_id ON UPDATE CASCADE ON DELETE CASCADE
+    FOREIGN KEY (u_id) REFERENCES `user` (u_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+-- Категория товара
 CREATE TABLE IF NOT EXISTS `category` (
     category_id   INTEGER PRIMARY KEY AUTO_INCREMENT,
     category_name TEXT    NOT NULL
 );
 
+-- Номенклатура товара
 CREATE TABLE IF NOT EXISTS `goodtype` (
     goodtype_id  INTEGER PRIMARY KEY AUTO_INCREMENT,
     article      INTEGER NOT NULL,
@@ -33,9 +36,10 @@ CREATE TABLE IF NOT EXISTS `goodtype` (
     booked_units INTEGER NOT NULL,
     sell_price   INTEGER NOT NULL,
 
-    category_id_fk FOREIGN KEY category_id REFERENCES TO category.category_id
+    FOREIGN KEY (category_id) REFERENCES `category` (category_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+-- Покупатель
 CREATE TABLE IF NOT EXISTS `customer` (
     customer_id   INTEGER PRIMARY KEY,
     name          TEXT    NOT NULL,
@@ -48,11 +52,12 @@ CREATE TABLE IF NOT EXISTS `customer` (
     money_spent   INTEGER NOT NULL DEFAULT 0
 );
 
+-- Заказ
 CREATE TABLE IF NOT EXISTS `order` (
     order_id     INTEGER  PRIMARY KEY AUTO_INCREMENT,
     customer_id  INTEGER  NOT NULL,
-    created_at   DATETIME NOT NULL,
-    updated_at   DATETIME NOT NULL,
+    created_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `status` ENUM(
         'unformed',
         'formed',
@@ -64,22 +69,23 @@ CREATE TABLE IF NOT EXISTS `order` (
     pay_to_date   DATE     NOT NULL,
     paid_at       DATETIME,
 
-    order_to_customer FOREIGN KEY c_id REFERENCES TO customer.c_id
+    FOREIGN KEY (customer_id) REFERENCES `customer` (customer_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
--- batch - это партия товара, хранящаяся на складе
+-- Партия товара, хранящаяся на складе
 CREATE TABLE IF NOT EXISTS `batch` (
     batch_id          INTEGER  PRIMARY KEY AUTO_INCREMENT,
-    supplied_at       DATETIME NOT NULL,
+    supplied_at       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at        DATETIME NOT NULL,
     supply_unit_price INTEGER  NOT NULL,
     supply_size       INTEGER  NOT NULL,
     units_left        INTEGER  NOT NULL,
     goodtype_id       INTEGER  NOT NULL,
 
-    goodtype_id_fk FOREIGN KEY goodtype_id REFERENCES TO goodtype.goodtype_id
+    FOREIGN KEY (goodtype_id) REFERENCES `goodtype` (goodtype_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+-- Строка заказа
 CREATE TABLE IF NOT EXISTS `orderline` (
     orderline_id INTEGER PRIMARY KEY AUTO_INCREMENT,
     goodtype_id  INTEGER NOT NULL,
@@ -87,31 +93,36 @@ CREATE TABLE IF NOT EXISTS `orderline` (
     quantity     INTEGER NOT NULL,
     price        INTEGER, -- выставляется только при оплате, хранится для статистики
 
-    goodtype_id_fk FOREIGN KEY g_id REFERENCES TO goodtype.g_id,
-    order_id_fk    FOREIGN KEY order_id REFERENCES TO order.order_id
+    FOREIGN KEY (goodtype_id) REFERENCES goodtype (goodtype_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (order_id) REFERENCES `order` (order_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+-- Списание товара из-за дефекта
 CREATE TABLE IF NOT EXISTS `defect_writeoff` (
     dw_id     INTEGER  PRIMARY KEY AUTO_INCREMENT,
     batch_id  INTEGER  NOT NULL,
     quantity  INTEGER  NOT NULL,
     defect_at DATETIME NOT NULL,
 
-    batch_id_fk FOREIGN KEY batch_id REFERENCES TO batch.batch_id
+    FOREIGN KEY (batch_id) REFERENCES `batch` (batch_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
--- Таблицы для отчётов
+-- Таблица измерения по времени для отчётов
 CREATE TABLE IF NOT EXISTS `dim_time` (
     dim_time_id INTEGER PRIMARY KEY AUTO_INCREMENT,
     year        INTEGER NOT NULL,
     month       INTEGER,
     day         INTEGER
 );
+
+-- Таблица измерения по виду товара для отчётов
 CREATE TABLE IF NOT EXISTS `dim_goodtype` (
     dim_goodtype_id INTEGER PRIMARY KEY AUTO_INCREMENT,
     goodtype_id     INTEGER,
     category_id     INTEGER
 );
+
+-- Таблица фактов для отчётов
 CREATE TABLE `fct_sales_report` (
     dim_time_id     INTEGER,
     dim_goodtype_id INTEGER,
@@ -120,5 +131,7 @@ CREATE TABLE `fct_sales_report` (
     units_supplied  INTEGER NOT NULL,
     money_supplied  INTEGER NOT NULL,
 
-    PRIMARY KEY (dim_time_id, dim_goodtype_id)
+    PRIMARY KEY (dim_time_id, dim_goodtype_id),
+    FOREIGN KEY (dim_time_id) REFERENCES `dim_time` (dim_time_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (dim_goodtype_id) REFERENCES `dim_goodtype` (dim_goodtype_id) ON UPDATE CASCADE ON DELETE CASCADE
 );

@@ -56,6 +56,7 @@ def delete_another_sessions(session_id: str):
 
 
 def insert_session(u_id: str) -> str:
+    print("INSERT SESSION")
     """Добавить сессию для данного пользователя. Возвращает ID новой сессии"""
     session_id = generate_secure_id()
     with SQLContextManager() as cur:

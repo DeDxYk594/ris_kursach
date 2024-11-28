@@ -1,5 +1,5 @@
 from flask import Flask, render_template
-from auth_blueprint import login_required, authBlueprint
+from auth_blueprint import login_required, authBlueprint, login_optional
 from database import init_mysql
 import json
 
@@ -12,7 +12,7 @@ init_mysql(app)
 
 
 @app.route("/")
-# @login_required()
+@login_optional
 def main_menu():
     breadcrumbs = [
         {"text": "Главное меню", "link": "/", "icon": "bi-house"},
