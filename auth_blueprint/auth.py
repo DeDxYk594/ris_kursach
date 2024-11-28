@@ -9,7 +9,6 @@ from flask import (
     g,
     abort,
 )
-from database import SQLContextManager
 import bcrypt
 from typing import Callable
 from . import model
@@ -17,7 +16,7 @@ from .model import User
 
 SESSION_COOKIE_NAME = "session_id"
 
-authBlueprint = Blueprint("auth", __name__, template_folder="templates")
+auth_blueprint = Blueprint("auth", __name__, template_folder="templates")
 
 
 def hash_password(password: str):
@@ -30,7 +29,7 @@ def check_password(old_password_hash: str, password_candidate: str) -> bool:
     )
 
 
-@authBlueprint.route("/login", methods=["GET", "POST"])
+@auth_blueprint.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         username = request.form["username"]
@@ -57,7 +56,7 @@ def login():
     return render_template("login.html", errors={})
 
 
-@authBlueprint.route("/logout")
+@auth_blueprint.route("/logout")
 def logout():
     session_id = request.cookies.get(SESSION_COOKIE_NAME)
     if not session_id:

@@ -1,7 +1,6 @@
 from flask import Flask, current_app
 from pymysql.cursors import Cursor
 from pymysql import connect
-from pymysql.err import OperationalError, ProgrammingError
 import os
 
 
@@ -38,10 +37,6 @@ class SQLContextManager:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         # в параметрах метода лежат ошибки, которые передаёт sql сервер при ошибке
-        if exc_type:
-            print(exc_type)
-            if exc_type in [OperationalError, ProgrammingError]:
-                raise
         if self.cursor:
             if exc_type:
                 # если на этапе выполнения произошли ошибки, но курсор при этом открыт, то скорее всего это транзакция и её надо откатить
@@ -49,4 +44,6 @@ class SQLContextManager:
             else:
                 self.conn.commit()
             self.cursor.close()
+        if exc_type:
+            raise
         return True

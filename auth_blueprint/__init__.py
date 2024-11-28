@@ -1,3 +1,3 @@
-from .auth import authBlueprint, login_required, login_optional
+from .auth import auth_blueprint, login_required, login_optional
 
-__all__ = ["authBlueprint", "login_required", "login_optional"]
+__all__ = ["auth_blueprint", "login_required", "login_optional"]

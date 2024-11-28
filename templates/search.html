@@ -1,31 +1,35 @@
-{% extends 'base.html' %} {% block title %}Главное меню {% endblock %} {% block
-breadcrumbs %}{% include 'components/breadcrumbs.html' %}{% endblock %} {% block
-content %}
+{% extends 'components/base.html' %} {% block title %}Главное меню {% endblock
+%} {% block breadcrumbs %}{% include 'components/breadcrumbs.html' %}{% endblock
+%} {% block content %}
 <div class="container">
   <form
     action="#"
     method="get"
     style="display: flex; flex-direction: column; row-gap: 10px; width: 60%"
   >
+    <input type="hidden" name="search-filters" value="search-filters" />
     <label for="name">Название товара:</label>
     <input
+      class="form-control"
       type="text"
       id="name"
-      name="name"
+      name="good_name"
       placeholder="Введите название товара"
     />
 
     <label for="category">Категория:</label>
-    <select id="category" name="category">
-      <option value="">Выберите категорию</option>
-      <option value="electronics">Электроника</option>
-      <option value="furniture">Мебель</option>
-      <option value="clothing">Одежда</option>
-      <option value="toys">Игрушки</option>
+    <select id="category" name="category_id" class="form-control">
+      <option value="">Все категории</option>
+      {% for cat in all_categories %}
+      <option value="{{ cat.category_id }}">
+        {{ cat.category_name }} ({{ cat.goodtypes_count }} товаров)
+      </option>
+      {% endfor %}
     </select>
 
     <label for="price-min">Цена от:</label>
     <input
+      class="form-control"
       type="number"
       id="price-min"
       name="price-min"
@@ -35,6 +39,7 @@ content %}
 
     <label for="price-max">Цена до:</label>
     <input
+      class="form-control"
       type="number"
       id="price-max"
       name="price-max"
@@ -42,28 +47,40 @@ content %}
       min="0"
     />
 
-    <button type="submit">Поиск</button>
+    <button type="submit" class="btn btn-primary">Поиск</button>
   </form>
   <div>
     <span style="font-weight: bold; font-size: 1.3rem">Результаты</span>
     <div>Найдено 228 товаров</div>
   </div>
-  <div class="goods-table">
-    <div class="goods-table__header">Артикул</div>
-    <div class="goods-table__header">Название товара</div>
-    <div class="goods-table__header">Стоимость</div>
-    <div class="goods-table__header">Доступно к заказу</div>
-    <div></div>
-    <div class="goods-table__item">23</div>
-    <div class="goods-table__item">Креветка</div>
-    <div class="goods-table__item">3333 Р / кг</div>
-    <div class="goods-table__item">228 кг</div>
-    <div class="goods-table__item"><button>+</button></div>
-    <div class="goods-table__item">228</div>
-    <div class="goods-table__item">Конфетка</div>
-    <div class="goods-table__item">1000 Р / кг</div>
-    <div class="goods-table__item">252 кг</div>
-    <div class="goods-table__item"><button>+</button></div>
-  </div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Артикул</th>
+        <th scope="col">Наименование SKU</th>
+        <th scope="col">Цена</th>
+        <th scope="col">Доступно к заказу</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope="row">1</th>
+        <td>Mark</td>
+        <td>Otto</td>
+        <td>@mdo</td>
+      </tr>
+      <tr>
+        <th scope="row">2</th>
+        <td>Jacob</td>
+        <td>Thornton</td>
+        <td>@fat</td>
+      </tr>
+      <tr>
+        <th scope="row">3</th>
+        <td colspan="2">Larry the Bird</td>
+        <td>@twitter</td>
+      </tr>
+    </tbody>
+  </table>
 </div>
 {% endblock %}

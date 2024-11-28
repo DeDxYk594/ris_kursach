@@ -103,6 +103,7 @@ CREATE TABLE IF NOT EXISTS `defect_writeoff` (
     batch_id  INTEGER  NOT NULL,
     quantity  INTEGER  NOT NULL,
     defect_at DATETIME NOT NULL,
+    reason    TEXT     NOT NULL,
 
     FOREIGN KEY (batch_id) REFERENCES `batch` (batch_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
