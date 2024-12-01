@@ -33,6 +33,7 @@ class SQLContextManager:
         self.cursor = self.conn.cursor()
 
     def __enter__(self) -> Cursor:
+        self.conn.begin()
         return self.cursor
 
     def __exit__(self, exc_type, exc_val, exc_tb):

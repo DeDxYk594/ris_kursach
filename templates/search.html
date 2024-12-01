@@ -1,7 +1,7 @@
 {% extends 'components/base.html' %} {% block title %}Главное меню {% endblock
 %} {% block breadcrumbs %}{% include 'components/breadcrumbs.html' %}{% endblock
 %} {% block content %}
-<div class="container">
+<div class="container" id="app">
   <form
     action="#"
     method="get"
@@ -49,10 +49,13 @@
 
     <button type="submit" class="btn btn-primary">Поиск</button>
   </form>
+  {% if result %}
   <div>
     <span style="font-weight: bold; font-size: 1.3rem">Результаты</span>
-    <div>Найдено 228 товаров</div>
   </div>
+
+  {% if goods %}
+  <div>Найдено {{ goods|length }} товаров</div>
   <table class="table">
     <thead>
       <tr>
@@ -60,27 +63,93 @@
         <th scope="col">Наименование SKU</th>
         <th scope="col">Цена</th>
         <th scope="col">Доступно к заказу</th>
+        <th scope="col"></th>
       </tr>
     </thead>
     <tbody>
+      {% for good in goods %}
+      <div
+        class="modal fade"
+        id="{{ good.goodtype_id }}"
+        tabindex="-1"
+        aria-labelledby="exampleModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <form method="post" action="/goods/add_to_order">
+              <input
+                type="hidden"
+                name="good_id"
+                value="{{ good.goodtype_id }}"
+              />
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">
+                  Добавить в заказ
+                </h1>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <div><h2>{{ good.name }}</h2></div>
+                <div>Артикул: {{ good.article }}</div>
+                <div>Цена: {{ good.sell_price }}₽/{{ good.measure_unit }}</div>
+                <div>
+                  Доступно к заказу: {{ good.available_units }} {{
+                  good.measure_unit }}
+                </div>
+                <label>Количество товара:</label>
+                <input />
+                <select>
+                  <option></option>
+                </select>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Отмена
+                </button>
+                <button type="submit" class="btn btn-primary">Добавить</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
       <tr>
-        <th scope="row">1</th>
-        <td>Mark</td>
-        <td>Otto</td>
-        <td>@mdo</td>
+        <th scope="row">{{ good.article }}</th>
+        <td>{{ good.name }}</td>
+        <td>{{ good.sell_price }}₽/{{ good.measure_unit }}</td>
+        <td>{{ good.available_units }} {{ good.measure_unit }}</td>
+        <td>
+          <button
+            class="btn btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#{{ good.goodtype_id }}"
+          >
+            Добавить в заказ
+          </button>
+        </td>
       </tr>
-      <tr>
-        <th scope="row">2</th>
-        <td>Jacob</td>
-        <td>Thornton</td>
-        <td>@fat</td>
-      </tr>
-      <tr>
-        <th scope="row">3</th>
-        <td colspan="2">Larry the Bird</td>
-        <td>@twitter</td>
-      </tr>
+      {% endfor %}
     </tbody>
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        <li class="page-item"><a class="page-link" href="#">1</a></li>
+        <li class="page-item"><a class="page-link" href="#">2</a></li>
+        <li class="page-item"><a class="page-link" href="#">3</a></li>
+      </ul>
+    </nav>
   </table>
+  {% else %}
+  <div>Не найдено товаров по Вашему запросу!</div>
+  {% endif %} {% endif %}
 </div>
+
 {% endblock %}

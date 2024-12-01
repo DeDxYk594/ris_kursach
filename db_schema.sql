@@ -1,21 +1,49 @@
--- Пользователь, который может залогиниться
-CREATE TABLE IF NOT EXISTS `user` (
-    u_id       INTEGER     PRIMARY KEY AUTO_INCREMENT,
-    username   VARCHAR(30) UNIQUE NOT NULL,
-    real_name  TEXT        NOT NULL,
-    created_at DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    role ENUM('customer','sales_manager','supply_manager','boss') NOT NULL,
-    password_hash TEXT     NOT NULL
+-- Покупатель
+CREATE TABLE IF NOT EXISTS `customer` (
+    customer_id   INTEGER PRIMARY KEY,
+    name          TEXT    NOT NULL,
+    address       TEXT    NOT NULL,
+    phone         TEXT    NOT NULL,
+    contract_date DATE    NOT NULL,
+    bik           TEXT    NOT NULL,
+    acc_num       TEXT    NOT NULL,
+    bank_name     TEXT    NOT NULL,
+    money_spent   INTEGER NOT NULL DEFAULT 0
+);
+
+-- Внешний пользователь
+CREATE TABLE IF NOT EXISTS `external_user` (
+    ext_u_id INTEGER     PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(30) UNIQUE NOT NULL,
+    real_name TEXT       NOT NULL,
+    created_at DATETIME  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME  NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    customer_id INTEGER  NOT NULL,
+    password_hash TEXT   NOT NULL,
+
+    FOREIGN KEY (customer_id) REFERENCES `customer` (customer_id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+-- Внутренний пользователь
+CREATE TABLE IF NOT EXISTS `internal_user` (
+    int_u_id      INTEGER     PRIMARY KEY AUTO_INCREMENT,
+    username      VARCHAR(30) UNIQUE NOT NULL,
+    real_name     TEXT        NOT NULL,
+    created_at    DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at    DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    role          ENUM('sales_manager','supply_manager','boss') NOT NULL,
+    password_hash TEXT        NOT NULL
 );
 
 -- Сессия для Stateful авторизации
 CREATE TABLE IF NOT EXISTS `session` (
     session_id  VARCHAR(64) PRIMARY KEY, -- SHA256 HEX digest
-    u_id        INTEGER     NOT NULL,
+    ext_u_id    INTEGER,
+    int_u_id    INTEGER,
     valid_until DATETIME    NOT NULL,
 
-    FOREIGN KEY (u_id) REFERENCES `user` (u_id) ON UPDATE CASCADE ON DELETE CASCADE
+    FOREIGN KEY (ext_u_id) REFERENCES `external_user` (ext_u_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (int_u_id) REFERENCES `internal_user` (int_u_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 -- Категория товара
@@ -37,19 +65,6 @@ CREATE TABLE IF NOT EXISTS `goodtype` (
     sell_price   INTEGER NOT NULL,
 
     FOREIGN KEY (category_id) REFERENCES `category` (category_id) ON UPDATE CASCADE ON DELETE CASCADE
-);
-
--- Покупатель
-CREATE TABLE IF NOT EXISTS `customer` (
-    customer_id   INTEGER PRIMARY KEY,
-    name          TEXT    NOT NULL,
-    address       TEXT    NOT NULL,
-    phone         TEXT    NOT NULL,
-    contract_date DATE    NOT NULL,
-    bik           TEXT    NOT NULL,
-    acc_num       TEXT    NOT NULL,
-    bank_name     TEXT    NOT NULL,
-    money_spent   INTEGER NOT NULL DEFAULT 0
 );
 
 -- Заказ

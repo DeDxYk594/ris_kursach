@@ -8,11 +8,11 @@ main_menu_blueprint = Blueprint("main_menu", __name__)
 @main_menu_blueprint.route("/")
 @login_optional
 def main_menu():
-    breadcrumbs = [
+    g.breadcrumbs = [
         {"text": "Главное меню", "link": "/", "icon": "bi-house"},
     ]
 
-    return render_template("main_menu.html", breadcrumbs=breadcrumbs)
+    return render_template("main_menu.html")
 
 
 @main_menu_blueprint.route("/personal")

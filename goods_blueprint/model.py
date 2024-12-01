@@ -34,8 +34,8 @@ def get_all_categories() -> list[Category]:
 
 
 def search_goods(
-    like_filter,
-    category_id,
+    like_filter: str,
+    category_id: int | None,
     min_price: int | None,
     max_price: int | None,
     page: int | None,
@@ -47,7 +47,7 @@ def search_goods(
         cur.execute(
             provider.get("search_goods.sql"),
             [
-                like_filter + "%",
+                "%" + like_filter.lower() + "%",
                 category_id,
                 category_id,
                 max_price,
@@ -60,5 +60,4 @@ def search_goods(
         rows = cur.fetchall()
         for row in rows:
             ret.append(GoodType(*row))
-    print(ret)
     return ret

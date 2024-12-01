@@ -18,9 +18,11 @@ breadcrumbs %}{% include 'components/breadcrumbs.html' %}{% endblock %} {% block
       ><i class="bi-layers"></i>Список сформированных заказов</a
     >
   </div>
+  {% if g.user and g.user.role=="sales_manager" %}
   <div>
     <a class="link" href="/"><i class="bi-safe"></i>Касса</a>
   </div>
+  {% endif %}
   <div>
     <a class="link" href="/"><i class="bi-box2"></i>Оставшиеся партии товара</a>
   </div>
