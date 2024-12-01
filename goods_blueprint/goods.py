@@ -26,12 +26,15 @@ def search():
         query_dict = request.args.to_dict()
         if query_dict.get("page"):
             del query_dict["page"]
+
+        customer_orders = model.get_customer_orders()
         return render_template(
             "search.html",
             all_categories=all_categories,
             search_result=search_result,
             result=True,
             query_dict=query_dict,
+            customer_orders=customer_orders,
         )
 
     return render_template("search.html", all_categories=all_categories)

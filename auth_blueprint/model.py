@@ -1,6 +1,5 @@
 from database import SQLProvider, SQLContextManager
 from dataclasses import dataclass
-
 import secrets
 
 provider = SQLProvider("auth_blueprint/sql")
@@ -29,7 +28,6 @@ def check_session(session_id: str) -> User | None:
             ],
         )
         row = cur.fetchone()
-        print("ROW: ", row)
         if row is None:
             return None
         ret = User(

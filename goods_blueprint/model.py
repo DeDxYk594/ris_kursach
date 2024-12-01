@@ -1,6 +1,7 @@
 from database import SQLProvider, SQLContextManager
 from dataclasses import dataclass
 import math
+from flask import g
 
 provider = SQLProvider("goods_blueprint/sql")
 
@@ -125,3 +126,21 @@ def search_goods(
         for row in rows:
             ret.goods.append(GoodType(*row))
     return ret
+
+
+def get_customer_orders() -> list[int]:
+    user = g.get("user", None)
+    if user is None:
+        return []
+    if user.role != "customer":
+        return []
+
+    with SQLContextManager() as cur:
+        cur.execute(provider.get("get_orders_for_customer.sql"), [user.u_id])
+        rows = cur.fetchall()
+        if rows is None:
+            return []
+        ret = []
+        for row in rows:
+            ret.append(row[0])
+        return ret

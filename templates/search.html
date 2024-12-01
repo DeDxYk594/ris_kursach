@@ -75,12 +75,9 @@
   <div>Найдено {{ search_result.total_goods }} товаров</div>
   <ul class="pagination">
     {% for p in search_result.pages %}
-
-      {# Определяем, является ли текущая страница активной #}
-      <li class="page-item {% if p == search_result.page %}active{% endif %}">
-        {# Создаём ссылку с обновлёнными параметрами #}
-        <a class="page-link" href="{{ url_for(request.endpoint, page=p, **query_dict) }}">{{ p }}</a>
-      </li>
+    <li class="page-item {% if p == search_result.page %}active{% endif %}">
+      <a class="page-link" href="{{ url_for(request.endpoint, page=p, **query_dict) }}">{{ p }}</a>
+    </li>
     {% endfor %}
   </ul>
 
@@ -130,10 +127,13 @@
                   Доступно к заказу: {{ good.available_units }} {{
                   good.measure_unit }}
                 </div>
-                <label>Количество товара:</label>
+                <label>Сколько заказать?</label>
                 <input />
-                <select>
-                  <option></option>
+                <label>В какой заказ добавить строку?</label>
+                <select name="order_id">
+                  {% for order in customer_orders %}
+                  <option value="{{ order }}">#{{ order }}</option>
+                  {% endfor %}
                 </select>
               </div>
               <div class="modal-footer">

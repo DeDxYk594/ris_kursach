@@ -9,13 +9,8 @@ breadcrumbs %}{% include 'components/breadcrumbs.html' %}{% endblock %} {% block
     <a class="link" href="/goods"><i class="bi-search"></i>Поиск товаров</a>
   </div>
   <div>
-    <a class="link" href="/orders/create"
-      ><i class="bi-cart-plus"></i>Создание заказа</a
-    >
-  </div>
-  <div>
-    <a class="link" href="/orders"
-      ><i class="bi-layers"></i>Список сформированных заказов</a
+    <a class="link" href="/my_orders"
+      ><i class="bi-cart-plus"></i>Список моих заказов</a
     >
   </div>
   {% if g.user and g.user.role=="sales_manager" %}
