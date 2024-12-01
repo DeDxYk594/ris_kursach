@@ -16,11 +16,9 @@
       />
       {% if errors.username %}
       <div class="invalid-feedback">{{ errors.username }}</div>
-      {% else %}
-      {% if errors.password %}
+      {% else %} {% if errors.password %}
       <div class="valid-feedback">Пользователь существует</div>
-      {% endif %}
-      {% endif %}
+      {% endif %} {% endif %}
     </div>
     <div class="input-group has-validation mb-3">
       <input
@@ -39,6 +37,32 @@
         >Показать пароль</label
       >
     </div>
+    <div class="form-check">
+      <input
+        class="form-check-input"
+        type="radio"
+        name="account_type"
+        value="internal"
+        id="flexRadioDefault1"
+      />
+      <label class="form-check-label" for="flexRadioDefault1">
+        Я чёрт возьми сотрудник
+      </label>
+    </div>
+    <div class="form-check">
+      <input
+        class="form-check-input"
+        type="radio"
+        name="account_type"
+        value="external"
+        id="flexRadioDefault2"
+        checked
+      />
+      <label class="form-check-label" for="flexRadioDefault2">
+        Я ни дать ни взять покупатель
+      </label>
+    </div>
+    <div style="height: 20px"></div>
     <button type="submit" class="btn btn-primary">Войти</button>
   </form>
   <script>

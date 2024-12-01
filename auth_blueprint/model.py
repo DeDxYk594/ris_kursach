@@ -33,11 +33,11 @@ def check_session(session_id: str) -> User | None:
         if row is None:
             return None
         ret = User(
-            u_id=row[0],
-            role=row[1],
-            password_hash=row[2],
-            username=row[3],
-            real_name=row[4],
+            u_id=row[0] if row[0] is not None else row[1],
+            role=row[2],
+            password_hash=row[3],
+            username=row[4],
+            real_name=row[5],
         )
 
         return ret
@@ -55,12 +55,18 @@ def delete_another_sessions(session_id: str):
         cur.execute(provider.get("delete_another_sessions.sql"), [session_id])
 
 
-def insert_session(u_id: str) -> str:
-    print("INSERT SESSION")
+def insert_session(user: User) -> str:
     """Добавить сессию для данного пользователя. Возвращает ID новой сессии"""
     session_id = generate_secure_id()
     with SQLContextManager() as cur:
-        cur.execute(provider.get("insert_session.sql"), [session_id, u_id])
+        cur.execute(
+            provider.get("insert_session.sql"),
+            [
+                session_id,
+                user.u_id if user.role == "customer" else None,
+                user.u_id if user.role != "customer" else None,
+            ],
+        )
     return session_id
 
 
@@ -70,10 +76,27 @@ def set_password(u_id: str, new_password_hash: str):
         cur.execute(provider.get("set_password.sql"), [new_password_hash, u_id])
 
 
-def get_user(username: str) -> User | None:
+def get_internal_user(username: str) -> User | None:
     """Получить пользователя по username"""
     with SQLContextManager() as cur:
-        cur.execute(provider.get("get_user.sql"), [username])
+        cur.execute(provider.get("get_internal_user.sql"), [username])
+        row = cur.fetchone()
+        if row is None:
+            return None
+        ret = User(
+            u_id=row[0],
+            role=row[1],
+            password_hash=row[2],
+            username=row[3],
+            real_name=row[4],
+        )
+        return ret
+
+
+def get_external_user(username: str) -> User | None:
+    """Получить пользователя по username"""
+    with SQLContextManager() as cur:
+        cur.execute(provider.get("get_external_user.sql"), [username])
         row = cur.fetchone()
         if row is None:
             return None

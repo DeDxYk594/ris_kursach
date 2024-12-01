@@ -34,14 +34,26 @@ def login():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
+        account_type = request.form["account_type"]
+        if account_type not in ["internal", "external"]:
+            abort(400)
 
-        user = model.get_user(username)
-        if user is None:
-            return render_template(
-                "login.html",
-                errors={"username": "Такого пользователя не существует"},
-                username=username,
-            )
+        if(account_type=="internal"):
+            user = model.get_internal_user(username)
+            if user is None:
+                return render_template(
+                    "login.html",
+                    errors={"username": "Такого пользователя не существует"},
+                    username=username,
+                )
+        else:
+            user = model.get_external_user(username)
+            if user is None:
+                return render_template(
+                    "login.html",
+                    errors={"username": "Такого пользователя не существует"},
+                    username=username,
+                )
 
         if not check_password(user.password_hash, password):
             return render_template(
@@ -49,7 +61,7 @@ def login():
                 errors={"password": "Неправильный пароль"},
                 username=username,
             )
-        session_id = model.insert_session(user.u_id)
+        session_id = model.insert_session(user)
         resp = make_response(redirect(request.args.get("next", "/")))
         resp.set_cookie(SESSION_COOKIE_NAME, session_id)
         return resp

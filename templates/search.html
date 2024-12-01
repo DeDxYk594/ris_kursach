@@ -14,14 +14,25 @@
       type="text"
       id="name"
       name="good_name"
+      {% if search_result %}
+      value="{{search_result.request_name}}"
+      {% endif %}
       placeholder="Введите название товара"
     />
 
     <label for="category">Категория:</label>
-    <select id="category" name="category_id" class="form-control">
+    <select
+      id="category"
+      name="category_id"
+      class="form-control"
+    >
       <option value="">Все категории</option>
       {% for cat in all_categories %}
-      <option value="{{ cat.category_id }}">
+      <option value="{{ cat.category_id }}"
+      {%if search_result %}
+      {% if search_result.request_cat==cat.category_id %}selected{% endif %}
+      {% endif %}
+      >
         {{ cat.category_name }} ({{ cat.goodtypes_count }} товаров)
       </option>
       {% endfor %}
@@ -32,8 +43,11 @@
       class="form-control"
       type="number"
       id="price-min"
-      name="price-min"
+      name="min_price"
       placeholder="Мин. цена"
+      {% if search_result %}
+      value="{{search_result.request_min_price}}"
+      {% endif %}
       min="0"
     />
 
@@ -42,8 +56,11 @@
       class="form-control"
       type="number"
       id="price-max"
-      name="price-max"
+      name="max_price"
       placeholder="Макс. цена"
+      {% if search_result %}
+      value="{{search_result.request_max_price}}"
+      {% endif %}
       min="0"
     />
 
@@ -54,8 +71,19 @@
     <span style="font-weight: bold; font-size: 1.3rem">Результаты</span>
   </div>
 
-  {% if goods %}
-  <div>Найдено {{ goods|length }} товаров</div>
+  {% if search_result %}
+  <div>Найдено {{ search_result.total_goods }} товаров</div>
+  <ul class="pagination">
+    {% for p in search_result.pages %}
+
+      {# Определяем, является ли текущая страница активной #}
+      <li class="page-item {% if p == search_result.page %}active{% endif %}">
+        {# Создаём ссылку с обновлёнными параметрами #}
+        <a class="page-link" href="{{ url_for(request.endpoint, page=p, **query_dict) }}">{{ p }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+
   <table class="table">
     <thead>
       <tr>
@@ -67,7 +95,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for good in goods %}
+      {% for good in search_result.goods %}
       <div
         class="modal fade"
         id="{{ good.goodtype_id }}"
@@ -139,13 +167,6 @@
       </tr>
       {% endfor %}
     </tbody>
-    <nav aria-label="Page navigation example">
-      <ul class="pagination">
-        <li class="page-item"><a class="page-link" href="#">1</a></li>
-        <li class="page-item"><a class="page-link" href="#">2</a></li>
-        <li class="page-item"><a class="page-link" href="#">3</a></li>
-      </ul>
-    </nav>
   </table>
   {% else %}
   <div>Не найдено товаров по Вашему запросу!</div>
