@@ -1,4 +1,5 @@
-from database import SQLProvider, SQLContextManager
+from classes.classes import Category, GoodType
+from database import SQLProvider, SQLContextManager, SQLTransactionContextManager
 from dataclasses import dataclass
 import math
 from flask import g
@@ -26,24 +27,6 @@ def to_int(data: str | None, default: int | None = None) -> int | None:
 
 def to_str(data: str | None):
     return data if data is not None else ""
-
-
-@dataclass
-class Category:
-    category_id: int
-    category_name: str
-    goodtypes_count: int
-
-
-@dataclass
-class GoodType:
-    goodtype_id: int
-    article: int
-    name: str
-    category_id: int
-    measure_unit: str
-    available_units: int
-    sell_price: int
 
 
 @dataclass

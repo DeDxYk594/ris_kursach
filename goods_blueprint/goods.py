@@ -38,9 +38,3 @@ def search():
         )
 
     return render_template("search.html", all_categories=all_categories)
-
-
-@goods_blueprint.route("/goods/add_to_order", methods=["POST"])
-@login_required(["customer"])
-def add_to_order():
-    return render_template("add_checkout.html")

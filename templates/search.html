@@ -102,10 +102,10 @@
       >
         <div class="modal-dialog">
           <div class="modal-content">
-            <form method="post" action="/goods/add_to_order">
+            <form method="post" action="/orders/add_to_order">
               <input
                 type="hidden"
-                name="good_id"
+                name="goodtype_id"
                 value="{{ good.goodtype_id }}"
               />
               <div class="modal-header">
@@ -128,7 +128,7 @@
                   good.measure_unit }}
                 </div>
                 <label>Сколько заказать?</label>
-                <input />
+                <input type="number" name="quantity" />
                 <label>В какой заказ добавить строку?</label>
                 <select name="order_id">
                   {% for order in customer_orders %}

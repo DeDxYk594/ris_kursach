@@ -1,6 +1,6 @@
 from flask import Flask, current_app
 from pymysql.cursors import Cursor
-from pymysql import connect
+from pymysql import connect, Connection
 import os
 
 
@@ -44,6 +44,25 @@ class SQLContextManager:
                 self.conn.rollback()
             else:
                 self.conn.commit()
+            self.cursor.close()
+        if exc_type:
+            raise
+        return True
+
+
+class SQLTransactionContextManager:
+    def __init__(self):
+        self.conn = connect(**db_config)
+        self.cursor = self.conn.cursor()
+
+    def __enter__(self) -> tuple[Connection, Cursor]:
+        self.conn.begin()
+        return (self.conn, self.cursor)
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # в параметрах метода лежат ошибки, которые передаёт sql сервер при ошибке
+        if self.cursor:
+            self.conn.rollback()
             self.cursor.close()
         if exc_type:
             raise

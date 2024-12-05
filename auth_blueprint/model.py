@@ -1,21 +1,13 @@
 from database import SQLProvider, SQLContextManager
 from dataclasses import dataclass
 import secrets
+from classes import User
 
 provider = SQLProvider("auth_blueprint/sql")
 
 
 def generate_secure_id() -> str:
     return secrets.token_hex(32)
-
-
-@dataclass
-class User:
-    u_id: int
-    password_hash: str
-    username: str
-    real_name: str
-    role: str
 
 
 def check_session(session_id: str) -> User | None:

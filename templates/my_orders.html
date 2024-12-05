@@ -2,6 +2,72 @@
 %} {% block breadcrumbs %}{% include 'components/breadcrumbs.html' %}{% endblock
 %} {% block content %}
 <div class="container">
-  <button class="btn btn-primary">Создать заказ</button>
+  <form method="post">
+    <button class="btn btn-primary" type="submit">Создать заказ</button>
+  </form>
+  <ul class="pagination">
+    {% for p in pages %}
+    <li class="page-item {% if p == page %}active{% endif %}">
+      <a
+        class="page-link"
+        href="{{ url_for(request.endpoint, page=p, **query_dict) }}"
+        >{{ p }}</a
+      >
+    </li>
+    {% endfor %}
+  </ul>
+  {% for order in orders %}
+  <div class="card mb-3">
+    <div
+      class="card-header"
+      id="orderHeader1"
+      style="cursor: pointer"
+      data-bs-toggle="collapse"
+      data-bs-target="#orderDetails{{order.order_id}}"
+    >
+      <div class="row">
+        <div class="col-md-3">
+          <strong>№ Заказа:</strong> {{order.order_id}}
+        </div>
+        <div class="col-md-3"><strong>Статус:</strong> {{ order.status }}</div>
+        <div class="col-md-3">
+          <strong>Сумма:</strong> {{ order.total_price }} ₽
+        </div>
+        <div class="col-md-3">
+          <strong>Создан:</strong> {{ order.created_at }}
+        </div>
+      </div>
+    </div>
+    <div id="orderDetails{{order.order_id}}" class="collapse">
+      <div class="card-body">
+        {% if order.lines %}
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Название товара</th>
+              <th>Количество</th>
+              <th>Стоимость</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for line in order.lines %}
+            <tr>
+              <td>{{ line.goodtype.name }}</td>
+              <td>{{ line.quantity }}</td>
+              <td>{{ line.price }}₽</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %} В заказе нет строк! {% endif %}
+        {% if order.status in ["unformed", "booked"] %}
+        <form action="/orders/delete/{{ order.order_id }}" method="post">
+          <button class="btn btn-danger">Аннулировать заказ</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
 </div>
 {% endblock %}

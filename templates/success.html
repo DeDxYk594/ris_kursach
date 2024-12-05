@@ -1,0 +1,22 @@
+{% extends "components/bare.html" %} {% block title %}Действие{% endblock %} {%
+block body %}
+<div class="container" style="max-width: 500px">
+  {% if is_success %}
+  <h1>Успех</h1>
+  {% else %}
+  <h1>Ошибка</h1>
+  {% endif %}
+  <span>{{ message }}</span>
+  <button id="backButton" class="btn btn-primary">Вернуться в систему</button>
+</div>
+<script>
+  document.getElementById("backButton").addEventListener("click", function () {
+    const referrer = document.referrer;
+    if (referrer) {
+      const separator = referrer.includes("?") ? "&" : "?";
+      window.location.href =
+        referrer + separator + "reload=" + new Date().getTime();
+    }
+  });
+</script>
+{% endblock %}
