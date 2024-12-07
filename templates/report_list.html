@@ -1,0 +1,10 @@
+{% extends 'components/base.html' %} {% block title %}Работа с отчётами{%
+endblock %} {% block breadcrumbs %}{% include 'components/breadcrumbs.html' %}{%
+endblock %} {% block content %}
+<div class="container">
+  <h1>Работа с отчётами</h1>
+  {% if report_types %} {% for r in report_types %}
+  <div><a href="">{{ r.name }}</a></div>
+  {% endfor %} {% else %} В системе не настроены отчёты! {% endif %}
+</div>
+{% endblock %}

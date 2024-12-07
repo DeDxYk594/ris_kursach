@@ -1,3 +1,11 @@
-from .classes import Order, OrderLine, GoodType, User
+from .classes import Order, OrderLine, GoodType, User, ReportType, UserRole, OrderStatus
 
-__all__ = ["Order", "OrderLine", "GoodType", "User"]
+__all__ = [
+    "Order",
+    "OrderLine",
+    "GoodType",
+    "User",
+    "ReportType",
+    "UserRole",
+    "OrderStatus",
+]

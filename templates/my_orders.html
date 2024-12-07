@@ -26,6 +26,11 @@
       data-bs-target="#orderDetails{{order.order_id}}"
     >
       <div class="row">
+        <div
+          style="border-radius: 50%;
+          height: 15px; width: 15px;
+          padding: 0; background-color: {{ order.status|status_color }};"
+        ></div>
         <div class="col-md-3">
           <strong>№ Заказа:</strong> {{order.order_id}}
         </div>
@@ -59,8 +64,8 @@
             {% endfor %}
           </tbody>
         </table>
-        {% else %} В заказе нет строк! {% endif %}
-        {% if order.status in ["unformed", "booked"] %}
+        {% else %} В заказе нет строк! {% endif %} {% if order.status in
+        ["unformed", "booked"] %}
         <form action="/orders/delete/{{ order.order_id }}" method="post">
           <button class="btn btn-danger">Аннулировать заказ</button>
         </form>

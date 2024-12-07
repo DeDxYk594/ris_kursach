@@ -72,11 +72,9 @@ CREATE TABLE IF NOT EXISTS `order` (
     order_id     INTEGER  PRIMARY KEY AUTO_INCREMENT,
     customer_id  INTEGER  NOT NULL,
     created_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `status` ENUM(
         'unformed',
-        'formed',
-        'booked',
         'got_payment_unshipped',
         'shipped',
         'cancelled')       NOT NULL DEFAULT 'unformed',
@@ -91,7 +89,7 @@ CREATE TABLE IF NOT EXISTS `order` (
 CREATE TABLE IF NOT EXISTS `batch` (
     batch_id          INTEGER  PRIMARY KEY AUTO_INCREMENT,
     supplied_at       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at        DATETIME NOT NULL,
+    updated_at        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     supply_unit_price INTEGER  NOT NULL,
     supply_size       INTEGER  NOT NULL,
     units_left        INTEGER  NOT NULL,
@@ -123,31 +121,19 @@ CREATE TABLE IF NOT EXISTS `defect_writeoff` (
     FOREIGN KEY (batch_id) REFERENCES `batch` (batch_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
--- Таблица измерения по времени для отчётов
-CREATE TABLE IF NOT EXISTS `dim_time` (
-    dim_time_id INTEGER PRIMARY KEY AUTO_INCREMENT,
+-- Таблица для обычных отчётов
+CREATE TABLE `common_report` (
+    goodtype_id INTEGER NOT NULL,
     year        INTEGER NOT NULL,
-    month       INTEGER,
-    day         INTEGER
-);
+    month       INTEGER NOT NULL,
+    day         INTEGER NOT NULL,
 
--- Таблица измерения по виду товара для отчётов
-CREATE TABLE IF NOT EXISTS `dim_goodtype` (
-    dim_goodtype_id INTEGER PRIMARY KEY AUTO_INCREMENT,
-    goodtype_id     INTEGER,
-    category_id     INTEGER
-);
-
--- Таблица фактов для отчётов
-CREATE TABLE `fct_sales_report` (
-    dim_time_id     INTEGER,
-    dim_goodtype_id INTEGER,
     units_sold      INTEGER NOT NULL,
     money_sold      INTEGER NOT NULL,
     units_supplied  INTEGER NOT NULL,
     money_supplied  INTEGER NOT NULL,
+    units_wrote     INTEGER NOT NULL,
+    money_wrote     INTEGER NOT NULL,
 
-    PRIMARY KEY (dim_time_id, dim_goodtype_id),
-    FOREIGN KEY (dim_time_id) REFERENCES `dim_time` (dim_time_id) ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY (dim_goodtype_id) REFERENCES `dim_goodtype` (dim_goodtype_id) ON UPDATE CASCADE ON DELETE CASCADE
+    PRIMARY KEY(goodtype_id, year, month, day)
 );

@@ -1,7 +1,7 @@
 from database import SQLProvider, SQLContextManager
 from dataclasses import dataclass
 import secrets
-from classes import User
+from classes import User, UserRole
 
 provider = SQLProvider("auth_blueprint/sql")
 

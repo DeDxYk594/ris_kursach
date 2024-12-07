@@ -12,7 +12,7 @@ from flask import (
 import bcrypt
 from typing import Callable
 from . import model
-from .model import User
+from classes import User, UserRole
 
 SESSION_COOKIE_NAME = "session_id"
 
@@ -38,7 +38,7 @@ def login():
         if account_type not in ["internal", "external"]:
             abort(400)
 
-        if(account_type=="internal"):
+        if account_type == "internal":
             user = model.get_internal_user(username)
             if user is None:
                 return render_template(
@@ -100,7 +100,7 @@ def get_session_id_from_request():
     return request.cookies.get(SESSION_COOKIE_NAME, None)
 
 
-def login_required(allowed_roles: list[str] = []) -> Callable:
+def login_required(allowed_roles: list[UserRole] = []) -> Callable:
     """
     Декоратор для проверки роли пользователя.
     Проверяет логин и дополнительно проверяет роль, если указана.
@@ -120,7 +120,13 @@ def login_required(allowed_roles: list[str] = []) -> Callable:
                 abort(redirect("/login"))
 
             if len(allowed_roles) != 0 and (user.role not in allowed_roles):
-                abort(redirect("/no_access"))
+                return render_template(
+                    "success.html",
+                    is_success=False,
+                    message=f"Вы не авторизованы на это действие. На него авторизованы только: {', '.join([
+                        UserRole.to_name(r) for r in allowed_roles
+                    ])}",
+                )
 
             return f(*args, **kwargs)
 

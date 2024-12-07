@@ -1,36 +1,56 @@
-{% extends 'components/base.html' %} {% block title %}Главное меню {% endblock %} {% block
-breadcrumbs %}{% include 'components/breadcrumbs.html' %}{% endblock %} {% block content %}
+{% extends 'components/base.html' %} {% block title %}Главное меню {% endblock
+%} {% block breadcrumbs %}{% include 'components/breadcrumbs.html' %}{% endblock
+%} {% block content %}
 <div class="container">
   <h2>Главное меню</h2>
+
+  <div>
+    <a class="link" href="/goods"><i class="bi-search"></i>Поиск товаров</a>
+  </div>
+
+  {% if g.user %} {% if g.user.role=="customer" %}
   <div>
     <a class="link" href="/personal"><i class="bi-person"></i>Личный кабинет</a>
   </div>
   <div>
-    <a class="link" href="/goods"><i class="bi-search"></i>Поиск товаров</a>
-  </div>
-  <div>
-    <a class="link" href="/my_orders"
-      ><i class="bi-cart-plus"></i>Список моих заказов</a
+    <a class="link" href="/my_orders">
+      <i class="bi-cart-plus"></i>
+      Список моих заказов</a
     >
   </div>
-  {% if g.user and g.user.role=="sales_manager" %}
+  {% endif %} {% if g.user.role=="sales_manager" %}
   <div>
     <a class="link" href="/"><i class="bi-safe"></i>Касса</a>
   </div>
-  {% endif %}
   <div>
-    <a class="link" href="/"><i class="bi-box2"></i>Оставшиеся партии товара</a>
+    <a class="link" href="/"><i class="bi-truck"></i>Отгрузка</a>
   </div>
   <div>
-    <a class="link" href="/"><i class="bi-list-check"></i>Отчёты о продажах</a>
+    <a class="link" href="/"><i class="bi-list-task"></i>Список заказов</a>
   </div>
   <div>
-    <a class="link" href="/"
-      ><i class="bi-house-check"></i>Оформление поступления товара</a
-    >
+    <a class="link" href="/"><i class="bi-window-plus"></i>Создание отчётов</a>
+  </div>
+  {% endif %} {% if g.user.role=="supply_manager" %}
+  <div>
+    <a class="link" href="/"><i class="bi-safe"></i>Добавить поступление</a>
   </div>
   <div>
-    <a class="link" href="/"><i class="bi-trash3"></i>Списание товара</a>
+    <a class="link" href="/"><i class="bi-safe"></i>Добавить номенклатуру</a>
   </div>
+  <div>
+    <a class="link" href="/"><i class="bi-safe"></i>Просмотр отчётов</a>
+  </div>
+  {% endif %} {% if g.user.role=="boss" %}
+  <div>
+    <a class="link" href="/"><i class="bi-trash"></i>Списание товара</a>
+  </div>
+  <div>
+    <a class="link" href="/"><i class="bi-person-vcard"></i>Управление внешними пользователями</a>
+  </div>
+  <div>
+    <a class="link" href="/"><i class="bi-card-checklist"></i>Просмотр отчётов</a>
+  </div>
+  {% endif %} {% endif %}
 </div>
 {% endblock %}

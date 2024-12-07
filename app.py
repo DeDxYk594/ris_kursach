@@ -9,6 +9,7 @@ from defect_blueprint import defect_blueprint
 from order_blueprint import order_blueprint
 from report_blueprint import report_blueprint
 from supply_blueprint import supply_blueprint
+from classes import OrderStatus
 
 app = Flask(__name__)
 
@@ -25,6 +26,12 @@ app.register_blueprint(defect_blueprint)
 app.register_blueprint(order_blueprint)
 app.register_blueprint(report_blueprint)
 app.register_blueprint(supply_blueprint)
+
+
+@app.template_filter("status_color")
+def status_color_filter(status):
+    return OrderStatus.to_color(status)
+
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5001, debug=True)
