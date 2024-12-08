@@ -19,11 +19,11 @@
   <div class="user-status">
     <div class="user-status__username">
       <div style="font-weight: bold">{{ g.user.real_name }}</div>
-      <div>Покупатель</div>
+      <div>{{ g.user.role|user_role }}</div>
     </div>
     <div>
       <a class="link" href="/logout?next={{ request.base_url }}" style="color: white">
-        <i class="bi-box-arrow-right" style="margin-right: 3px"></i>Выйти
+        <i class="bi-box-arrow-right" style="margin-right: 8px"></i>Выйти
       </a>
     </div>
   </div>
@@ -35,7 +35,7 @@
     </div>
     <div>
       <a class="link" href="/login" style="color: white">
-        <i class="bi-person" style="margin-right: 3px"></i>Войти
+        <i class="bi-person" style="margin-right: 8px"></i>Войти
       </a>
     </div>
   </div>

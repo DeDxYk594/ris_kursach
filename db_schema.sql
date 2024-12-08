@@ -78,7 +78,6 @@ CREATE TABLE IF NOT EXISTS `order` (
         'got_payment_unshipped',
         'shipped',
         'cancelled')       NOT NULL DEFAULT 'unformed',
-    total_price   INTEGER  NOT NULL,
     pay_to_date   DATE     NOT NULL,
     paid_at       DATETIME,
 

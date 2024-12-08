@@ -15,7 +15,7 @@ def get_customer_orders(ext_u_id: int, page: int) -> list[Order]:
         for row in rows:
             order_id: int = row[0]
             if group.get(order_id, None) is None:
-                ord = Order(order_id, row[2], row[1], [], 0)
+                ord = Order(order_id, row[2], row[1], [], 0, "")
                 group[order_id] = ord
                 ret.append(ord)
 
@@ -40,9 +40,17 @@ def create_order(ext_u_id: int):
         cur.execute(provider.get("create_order.sql"), [ext_u_id])
 
 
-def estimate_orders(ext_u_id: int) -> int:
+def estimate_customer_orders(ext_u_id: int) -> int:
     with SQLContextManager() as cur:
-        cur.execute(provider.get("estimate_orders.sql"), [ext_u_id])
+        cur.execute(provider.get("estimate_customer_orders.sql"), [ext_u_id])
+        row = cur.fetchone()
+        if row is None:
+            raise ValueError("Error sql query")
+        return row[0]
+
+def estimate_active_orders() -> int:
+    with SQLContextManager() as cur:
+        cur.execute(provider.get("estimate_active_orders.sql"), [])
         row = cur.fetchone()
         if row is None:
             raise ValueError("Error sql query")
@@ -88,3 +96,32 @@ def add_to_order(
         cur.execute(provider.get("add_to_order.sql"), [order_id, goodtype_id, quantity])
         conn.commit()
         return gt
+
+
+def get_active_orders(page: int) -> list[Order]:
+    with SQLContextManager() as cur:
+        cur.execute(provider.get("get_active_orders.sql"), [(page - 1) * 20])
+        rows = cur.fetchall()
+        group: dict[int, Order] = {}
+        ret: list[Order] = []
+        for row in rows:
+            order_id: int = row[0]
+            if group.get(order_id, None) is None:
+                ord = Order(order_id, row[2], row[1], [], 0, row[9])
+                group[order_id] = ord
+                ret.append(ord)
+
+            if row[6] is None:
+                continue
+
+            group[order_id].lines.append(
+                OrderLine(
+                    row[3],
+                    GoodType(0, row[6], row[7], "", row[8], 0, 0, 0),
+                    row[4],
+                    row[5],
+                )
+            )
+            group[order_id].total_price += row[5] if row[5] is not None else 0
+
+        return ret

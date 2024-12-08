@@ -1,0 +1,36 @@
+{% extends 'components/base.html' %} {% block title %}Главное меню {% endblock
+%} {% block breadcrumbs %}{% include 'components/breadcrumbs.html' %}{% endblock
+%} {% block content %}
+<div class="container">
+  <h1>Касса</h1>
+  <form class="form-control" method="" action="/orders">
+    <label>Номер заказа</label>
+    <input type="number" name="order_id" />
+    <button type="submit" class="btn btn-primary">Найти заказ</button>
+  </form>
+  {% if order %}
+  <div>
+    Номер заказа: {{ order.order_id }} Сумма к оплате:
+    <strong>{{ order.total_price }}</strong>
+    <form class="form-control" method="" action="/orders">
+      Для оплаты введите пароль
+      <label>Номер заказа</label>
+      <input type="password" name="password" />
+      <button type="submit" class="btn btn-primary">
+        Зафиксировать оплату
+      </button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+<script>
+  document.getElementById("backButton").addEventListener("click", function () {
+    const referrer = document.referrer;
+    if (referrer) {
+      const separator = referrer.includes("?") ? "&" : "?";
+      window.location.href =
+        referrer + separator + "reload=" + new Date().getTime();
+    }
+  });
+</script>
+{% endblock %}

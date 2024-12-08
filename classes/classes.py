@@ -11,12 +11,13 @@ class UserRole(enum.Enum):
 
     @staticmethod
     def to_name(r) -> str:
+        r1 = UserRole(r)
         return {
             UserRole.CUSTOMER: "Покупатель",
             UserRole.SALES_MANAGER: "Менеджер по продажам",
             UserRole.SUPPLY_MANAGER: "Менеджер по закупкам",
             UserRole.BOSS_OF_THE_GYM: "Начальник",
-        }[r]
+        }[r1]
 
 
 class OrderStatus(enum.Enum):
@@ -27,8 +28,8 @@ class OrderStatus(enum.Enum):
 
     @staticmethod
     def to_color(val: str):
-        val = OrderStatus(val)
-        match val:
+        val1 = OrderStatus(val)
+        match val1:
             case OrderStatus.UNFORMED:
                 return "var(--bs-primary)"
             case OrderStatus.GOT_PAYMENT:
@@ -37,8 +38,6 @@ class OrderStatus(enum.Enum):
                 return "var(--bs-success)"
             case OrderStatus.CANCELLED:
                 return "var(--bs-danger)"
-
-        raise ValueError(f"{val} is not allowed as order status")
 
 
 @dataclass
@@ -75,6 +74,7 @@ class Order:
     status: str
     lines: list[OrderLine]
     total_price: int
+    customer_name: str
 
 
 @dataclass
@@ -83,7 +83,7 @@ class User:
     password_hash: str
     username: str
     real_name: str
-    role: str
+    role: UserRole
 
 
 @dataclass

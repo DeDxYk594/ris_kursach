@@ -4,7 +4,6 @@ import json
 from classes import ReportType, UserRole
 
 report_blueprint = Blueprint("report", __name__)
-print("REPORT NAME: ", __name__)
 
 with open("report_config.json", "r", encoding="utf-8") as f:
     _config = json.load(f)

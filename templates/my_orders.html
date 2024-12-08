@@ -2,9 +2,11 @@
 %} {% block breadcrumbs %}{% include 'components/breadcrumbs.html' %}{% endblock
 %} {% block content %}
 <div class="container">
+  {% if g.user.role==UserRole.CUSTOMER %}
   <form method="post">
     <button class="btn btn-primary" type="submit">Создать заказ</button>
   </form>
+  {% endif %}
   <ul class="pagination">
     {% for p in pages %}
     <li class="page-item {% if p == page %}active{% endif %}">
@@ -16,7 +18,7 @@
     </li>
     {% endfor %}
   </ul>
-  {% for order in orders %}
+  {% if orders %} {% for order in orders %}
   <div class="card mb-3">
     <div
       class="card-header"
@@ -31,15 +33,18 @@
           height: 15px; width: 15px;
           padding: 0; background-color: {{ order.status|status_color }};"
         ></div>
-        <div class="col-md-3">
+        <div class="col-md-2">
           <strong>№ Заказа:</strong> {{order.order_id}}
         </div>
-        <div class="col-md-3"><strong>Статус:</strong> {{ order.status }}</div>
-        <div class="col-md-3">
+        <div class="col-md-2"><strong>Статус:</strong> {{ order.status }}</div>
+        <div class="col-md-2">
           <strong>Сумма:</strong> {{ order.total_price }} ₽
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
           <strong>Создан:</strong> {{ order.created_at }}
+        </div>
+        <div class="col-md-2">
+          <strong>Покупатель:</strong> {{ order.customer_name }}
         </div>
       </div>
     </div>
@@ -73,6 +78,8 @@
       </div>
     </div>
   </div>
-  {% endfor %}
+  {% endfor %} {% else %}
+  <h3>Нет заказов</h3>
+  {% endif %}
 </div>
 {% endblock %}

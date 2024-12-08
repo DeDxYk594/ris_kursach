@@ -8,7 +8,7 @@
     <a class="link" href="/goods"><i class="bi-search"></i>Поиск товаров</a>
   </div>
 
-  {% if g.user %} {% if g.user.role=="customer" %}
+  {% if g.user %} {% if g.user.role==UserRole.CUSTOMER %}
   <div>
     <a class="link" href="/personal"><i class="bi-person"></i>Личный кабинет</a>
   </div>
@@ -18,20 +18,20 @@
       Список моих заказов</a
     >
   </div>
-  {% endif %} {% if g.user.role=="sales_manager" %}
+  {% endif %} {% if g.user.role==UserRole.SALES_MANAGER %}
   <div>
-    <a class="link" href="/"><i class="bi-safe"></i>Касса</a>
+    <a class="link" href="/kassa"><i class="bi-safe"></i>Касса</a>
   </div>
   <div>
     <a class="link" href="/"><i class="bi-truck"></i>Отгрузка</a>
   </div>
   <div>
-    <a class="link" href="/"><i class="bi-list-task"></i>Список заказов</a>
+    <a class="link" href="/active_orders"><i class="bi-list-task"></i>Список активных заказов</a>
   </div>
   <div>
     <a class="link" href="/"><i class="bi-window-plus"></i>Создание отчётов</a>
   </div>
-  {% endif %} {% if g.user.role=="supply_manager" %}
+  {% endif %} {% if g.user.role==UserRole.SUPPLY_MANAGER %}
   <div>
     <a class="link" href="/"><i class="bi-safe"></i>Добавить поступление</a>
   </div>
@@ -41,7 +41,7 @@
   <div>
     <a class="link" href="/"><i class="bi-safe"></i>Просмотр отчётов</a>
   </div>
-  {% endif %} {% if g.user.role=="boss" %}
+  {% endif %} {% if g.user.role==UserRole.BOSS_OF_THE_GYM %}
   <div>
     <a class="link" href="/"><i class="bi-trash"></i>Списание товара</a>
   </div>

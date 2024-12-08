@@ -9,7 +9,7 @@ from defect_blueprint import defect_blueprint
 from order_blueprint import order_blueprint
 from report_blueprint import report_blueprint
 from supply_blueprint import supply_blueprint
-from classes import OrderStatus
+from classes import OrderStatus, UserRole
 
 app = Flask(__name__)
 
@@ -31,6 +31,16 @@ app.register_blueprint(supply_blueprint)
 @app.template_filter("status_color")
 def status_color_filter(status):
     return OrderStatus.to_color(status)
+
+
+@app.template_filter("user_role")
+def user_role_filter(status):
+    return UserRole.to_name(status)
+
+
+@app.context_processor
+def inject_enums():
+    return {"UserRole": UserRole, "OrderStatus": OrderStatus}
 
 
 if __name__ == "__main__":

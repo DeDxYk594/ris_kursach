@@ -24,7 +24,7 @@ def check_session(session_id: str) -> User | None:
             return None
         ret = User(
             u_id=row[0] if row[0] is not None else row[1],
-            role=row[2],
+            role=UserRole(row[2]),
             password_hash=row[3],
             username=row[4],
             real_name=row[5],

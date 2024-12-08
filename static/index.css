@@ -31,9 +31,10 @@
 .link {
   text-decoration: none;
   padding: 0 4px;
+  transition: background 0.2s ease;
 }
 .link i {
-  margin-right: 3px;
+  margin-right: 8px;
 }
 .link:hover {
   background-color: rgba(0, 0, 0, 0.1);
