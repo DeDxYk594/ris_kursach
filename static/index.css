@@ -1,6 +1,7 @@
-.navbar {
+.navbar_ais {
   height: 64px;
   background: linear-gradient(#0077ff, #1974d2);
+  z-index: 1054;
 }
 .navbar__logo {
   width: 48px;

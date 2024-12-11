@@ -1,6 +1,6 @@
 {% extends "components/bare.html" %} {% block body %}
 <nav
-  class="navbar navbar-expand-lg"
+  class="navbar_ais"
   style="
     padding-left: 10px;
     padding-right: 25px;
@@ -9,20 +9,107 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    position: fixed;
+    width: 100vw;
   "
 >
   <div style="display: flex; flex-direction: row; align-items: center">
     <img src="/static/logo.jpg" class="navbar__logo" />
     <div class="navbar__is-name">АИС "Наш Склад"</div>
   </div>
-  {% if g.get("user", None) != None %}
+  {% if g.user %} {% if g.cart %}
+
+  <button
+    class="btn btn-success"
+    style="color: white"
+    data-bs-toggle="modal"
+    data-bs-target="#cartModal"
+  >
+    <i class="bi-cart"></i> Корзина ({{ g.cart_quantity }})
+  </button>
+
+  <!-- Модальное окно "Корзина" -->
+  <div
+    class="modal fade"
+    id="cartModal"
+    tabindex="-1"
+    aria-labelledby="cartModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="cartModalLabel">Корзина</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Закрыть"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <!-- Информация о корзине -->
+          <div class="mb-3">
+            <strong>Всего товаров:</strong>
+            <span id="totalItems">{{ g.cart_quantity }}</span>
+            <br />
+            <strong>Общая стоимость:</strong>
+            <span id="totalPrice">{{ g.cart_sum }} ₽</span>
+          </div>
+
+          <!-- Таблица товаров -->
+          <div class="table-responsive">
+            <table class="table table-bordered">
+              <thead class="table-light">
+                <tr>
+                  <th>Название товара</th>
+                  <th>Артикул товара</th>
+                  <th>Количество</th>
+                  <th>Стоимость единицы</th>
+                  <th>Итого</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for line in g.cart %}
+                <tr>
+                  <td>{{ line[1] }}</td>
+                  <td>{{ line[2] }}</td>
+                  <td>{{ line[3] }} {{ line[5] }}</td>
+                  <td>{{ line[4] }} ₽</td>
+                  <td>{{ line[4]*line[3] }} ₽</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <form action="/orders/clear_cart" method="post">
+            <button type="submit" class="btn btn-secondary">
+              Очистить корзину
+            </button>
+          </form>
+          <form action="/orders/create_order" method="post">
+            <button type="submit" class="btn btn-primary">
+              Создать заказ
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
   <div class="user-status">
     <div class="user-status__username">
       <div style="font-weight: bold">{{ g.user.real_name }}</div>
       <div>{{ g.user.role|user_role }}</div>
     </div>
     <div>
-      <a class="link" href="/logout?next={{ request.base_url }}" style="color: white">
+      <a
+        class="link"
+        href="/logout?next={{ request.base_url }}"
+        style="color: white"
+      >
         <i class="bi-box-arrow-right" style="margin-right: 8px"></i>Выйти
       </a>
     </div>
@@ -41,8 +128,9 @@
   </div>
   {% endif %}
 </nav>
+<div style="height: 40px"></div>
 <div class="base__content-container">
-  {% block breadcrumbs %} {% endblock %}
+  {% include 'components/breadcrumbs.html' %}
   <hr />
   {% block content %}{% endblock %}
 </div>

@@ -16,25 +16,17 @@ def search():
 
     all_categories = model.get_all_categories()
     if request.args.get("search-filters"):
-        search_result = model.search_goods(
-            request.args.get("good_name"),
-            request.args.get("category_id"),
-            request.args.get("min_price"),
-            request.args.get("max_price"),
-            request.args.get("page"),
-        )
+        search_result = model.search_goods()
         query_dict = request.args.to_dict()
         if query_dict.get("page"):
             del query_dict["page"]
 
-        customer_orders = model.get_customer_orders()
         return render_template(
             "search.html",
             all_categories=all_categories,
             search_result=search_result,
             result=True,
             query_dict=query_dict,
-            customer_orders=customer_orders,
         )
 
     return render_template("search.html", all_categories=all_categories)

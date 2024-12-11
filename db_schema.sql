@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS `goodtype` (
     booked_units INTEGER NOT NULL,
     sell_price   INTEGER NOT NULL,
 
+    CHECK(has_units>=0 && has_units>=booked_units && booked_units>=0),
     FOREIGN KEY (category_id) REFERENCES `category` (category_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
@@ -74,10 +75,10 @@ CREATE TABLE IF NOT EXISTS `order` (
     created_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `status` ENUM(
-        'unformed',
-        'got_payment_unshipped',
+        'unpaid',
+        'paid',
         'shipped',
-        'cancelled')       NOT NULL DEFAULT 'unformed',
+        'cancelled')       NOT NULL DEFAULT 'unpaid',
     pay_to_date   DATE     NOT NULL,
     paid_at       DATETIME,
 
@@ -118,6 +119,7 @@ CREATE TABLE IF NOT EXISTS `defect_writeoff` (
     defect_at DATETIME NOT NULL,
     reason    TEXT     NOT NULL,
 
+    CHECK(quantity>0),
     FOREIGN KEY (batch_id) REFERENCES `batch` (batch_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 

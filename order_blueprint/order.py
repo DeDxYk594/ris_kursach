@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, g, request, redirect
+from flask import Blueprint, render_template, g, request, redirect, session
 from auth_blueprint.auth import login_optional, login_required
 from . import model
 from classes import UserRole
@@ -6,17 +6,13 @@ from classes import UserRole
 order_blueprint = Blueprint("order", __name__)
 
 
-@order_blueprint.route("/my_orders", methods=["GET", "POST"])
+@order_blueprint.route("/my_orders", methods=["GET"])
 @login_required([UserRole.CUSTOMER])
-def create_order():
+def get_my_orders():
     g.breadcrumbs = [
         {"text": "Главное меню", "link": "/", "icon": "bi-house"},
         {"text": "Мои заказы", "link": "/my_orders", "icon": "bi-cart-plus"},
     ]
-
-    if request.method == "POST":
-        model.create_order(g.user.u_id)
-        return redirect("/my_orders")
 
     page = int(request.args.get("page", 1))
     orders = model.get_customer_orders(g.user.u_id, page)
@@ -50,10 +46,10 @@ def active_orders():
     ]
 
     page = int(request.args.get("page", 1))
-    if g.user.role==UserRole.WORKER:
+    if g.user.role == UserRole.WORKER:
         orders = model.get_active_orders(page)
         order_count = model.estimate_active_orders()
-    elif g.user.role==UserRole.SALES_MANAGER:
+    elif g.user.role == UserRole.SALES_MANAGER:
         orders = model.get_paid_orders(page)
         order_count = model.estimate_paid_orders()
 
@@ -100,10 +96,7 @@ def kassa():
 @order_blueprint.route("/orders/delete/<int:order_id>", methods=["POST"])
 @login_required([UserRole.CUSTOMER, UserRole.SALES_MANAGER])
 def cancel_order(order_id: int):
-    if g.user.role == UserRole.SALES_MANAGER:
-        is_success = model.annulate_order(order_id)
-    else:
-        is_success = model.annulate_my_order(g.user.u_id, order_id)
+    is_success = model.annulate_order(order_id)
 
     return render_template(
         "success.html",
@@ -111,23 +104,80 @@ def cancel_order(order_id: int):
     )
 
 
-@order_blueprint.route("/orders/add_to_order", methods=["POST"])
-@login_required([UserRole.CUSTOMER])
-def add_to_order():
-    good = model.add_to_order(
-        g.user.u_id,
-        int(request.form["order_id"]),
-        int(request.form["goodtype_id"]),
-        int(request.form["quantity"]),
+@order_blueprint.route("/orders/ship/<int:order_id>", methods=["POST"])
+@login_required([UserRole.WORKER])
+def ship_order(order_id: int):
+    model.ship_order(order_id)
+
+    return render_template(
+        "success.html",
+        is_success=True,
     )
-    if isinstance(good, str):
-        return render_template("success.html", is_success=False, message=good)
+
+
+@order_blueprint.route("/orders/add_to_cart", methods=["POST"])
+@login_required([UserRole.CUSTOMER])
+def add_to_cart():
+    good = model.get_goodtype_by_id(int(request.form["goodtype_id"]))
+    if good is None:
+        return render_template(
+            "success.html", is_success=False, message="Товар с таким ID не найден"
+        )
+    cart = session.get("cart", [])
+    try:
+        cart[next(idx for (idx, i) in enumerate(cart) if i[0] == good.goodtype_id)][
+            3
+        ] += int(request.form["quantity"])
+    except StopIteration:
+        cart.append(
+            [
+                good.goodtype_id,
+                good.name,
+                good.article,
+                int(request.form["quantity"]),
+                good.sell_price,
+                good.measure_unit,
+            ]
+        )
+    session["cart"] = cart
     return render_template(
         "add_checkout.html",
         good=good,
-        order_id=request.form["order_id"],
         quantity=request.form["quantity"],
     )
+
+
+@order_blueprint.route("/orders/clear_cart", methods=["POST"])
+@login_required([UserRole.CUSTOMER])
+def clear_cart():
+    session["cart"] = []
+    return render_template(
+        "success.html", is_success=True, message="Корзина теперь пустая"
+    )
+
+
+@order_blueprint.route("/orders/create_order", methods=["POST"])
+@login_required([UserRole.CUSTOMER])
+def create_order():
+    try:
+        is_success, order_id = model.create_order()
+
+        if is_success:
+            return render_template(
+                "success.html", is_success=True, message=f"Заказ #{order_id} создан"
+            )
+        return render_template(
+            "success.html",
+            is_success=False,
+            message="Заказ не создан, произошла ошибка",
+        )
+    except Exception as e:
+        print(e)
+        return render_template(
+            "success.html",
+            is_success=False,
+            message="Заказ не создан, неизвестная ошибка",
+        )
 
 
 @order_blueprint.route("/orders/pay_order", methods=["POST"])

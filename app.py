@@ -16,6 +16,8 @@ app = Flask(__name__)
 with open("db_config.json") as f:
     app.config["db_config"] = json.load(f)
 
+app.config["SECRET_KEY"] = "Zhukov_RK6-54B_kursach"
+
 init_mysql(app)
 
 
@@ -31,6 +33,11 @@ app.register_blueprint(supply_blueprint)
 @app.template_filter("status_color")
 def status_color_filter(status):
     return OrderStatus.to_color(status)
+
+
+@app.template_filter("status_name")
+def status_name_filter(status):
+    return OrderStatus.to_name(status)
 
 
 @app.template_filter("user_role")

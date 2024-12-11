@@ -13,6 +13,7 @@ def generate_secure_id() -> str:
 def check_session(session_id: str) -> User | None:
     """Проверить сессию. Если сессия валидна, возвращает пользователя. Если невалидна, возвращает None"""
     with SQLContextManager() as cur:
+        print("SESS CHECK: ", session_id)
         cur.execute(
             provider.get("check_session.sql"),
             [
@@ -57,6 +58,7 @@ def insert_session(user_id: int, is_internal: bool) -> str:
                 user_id if is_internal else None,
             ],
         )
+    print("SESS_ID ", session_id)
     return session_id
 
 
@@ -75,7 +77,7 @@ def get_internal_user(username: str) -> User | None:
             return None
         ret = User(
             u_id=row[0],
-            role=row[1],
+            role=UserRole(row[1]),
             password_hash=row[2],
             username=row[3],
             real_name=row[4],

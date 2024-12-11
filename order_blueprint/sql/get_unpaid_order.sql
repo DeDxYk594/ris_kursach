@@ -5,5 +5,5 @@ FROM `order` AS o
 LEFT JOIN orderline AS l ON l.order_id=o.order_id
 LEFT JOIN goodtype AS g ON g.goodtype_id=l.goodtype_id
 JOIN customer AS c USING(customer_id)
-WHERE o.order_id=%s AND o.`status`='unformed'
+WHERE o.order_id=%s AND o.`status`='unpaid'
 ORDER BY o.order_id;

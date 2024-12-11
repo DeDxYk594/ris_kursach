@@ -88,7 +88,9 @@
         <th scope="col">Наименование SKU</th>
         <th scope="col">Цена</th>
         <th scope="col">Доступно к заказу</th>
+        {% if g.user.role==UserRole.CUSTOMER %}
         <th scope="col"></th>
+        {% endif %}
       </tr>
     </thead>
     <tbody>
@@ -102,7 +104,7 @@
       >
         <div class="modal-dialog">
           <div class="modal-content">
-            <form method="post" action="/orders/add_to_order">
+            <form method="post" action="/orders/add_to_cart">
               <input
                 type="hidden"
                 name="goodtype_id"
@@ -110,7 +112,7 @@
               />
               <div class="modal-header">
                 <h1 class="modal-title fs-5" id="exampleModalLabel">
-                  Добавить в заказ
+                  Добавить в корзину
                 </h1>
                 <button
                   type="button"
@@ -129,12 +131,6 @@
                 </div>
                 <label>Сколько заказать?</label>
                 <input type="number" name="quantity" />
-                <label>В какой заказ добавить строку?</label>
-                <select name="order_id">
-                  {% for order in customer_orders %}
-                  <option value="{{ order }}">#{{ order }}</option>
-                  {% endfor %}
-                </select>
               </div>
               <div class="modal-footer">
                 <button
@@ -155,6 +151,7 @@
         <td>{{ good.name }}</td>
         <td>{{ good.sell_price }}₽/{{ good.measure_unit }}</td>
         <td>{{ good.available_units }} {{ good.measure_unit }}</td>
+        {% if g.user.role==UserRole.CUSTOMER %}
         <td>
           <button
             class="btn btn-primary"
@@ -164,6 +161,7 @@
             Добавить в заказ
           </button>
         </td>
+        {% endif %}
       </tr>
       {% endfor %}
     </tbody>

@@ -21,8 +21,8 @@ class UserRole(enum.Enum):
 
 
 class OrderStatus(enum.Enum):
-    UNFORMED = "unformed"
-    GOT_PAYMENT = "got_payment_unshipped"
+    UNPAID = "unpaid"
+    PAID = "paid"
     SHIPPED = "shipped"
     CANCELLED = "cancelled"
 
@@ -30,14 +30,27 @@ class OrderStatus(enum.Enum):
     def to_color(val: str):
         val1 = OrderStatus(val)
         match val1:
-            case OrderStatus.UNFORMED:
+            case OrderStatus.UNPAID:
                 return "var(--bs-primary)"
-            case OrderStatus.GOT_PAYMENT:
+            case OrderStatus.PAID:
                 return "var(--bs-warning)"
             case OrderStatus.SHIPPED:
                 return "var(--bs-success)"
             case OrderStatus.CANCELLED:
                 return "var(--bs-danger)"
+
+    @staticmethod
+    def to_name(val: str):
+        val1 = OrderStatus(val)
+        match val1:
+            case OrderStatus.UNPAID:
+                return "Не оплачен"
+            case OrderStatus.PAID:
+                return "Оплачен"
+            case OrderStatus.SHIPPED:
+                return "Отгружен"
+            case OrderStatus.CANCELLED:
+                return "Аннулирован"
 
 
 @dataclass

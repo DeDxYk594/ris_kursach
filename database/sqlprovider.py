@@ -28,22 +28,18 @@ class SQLProvider:
 
 
 class SQLContextManager:
+    """Контекстный менеджер без транзакционности"""
+
     def __init__(self):
         self.conn = connect(**db_config)
         self.cursor = self.conn.cursor()
 
     def __enter__(self) -> Cursor:
-        self.conn.begin()
         return self.cursor
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        # в параметрах метода лежат ошибки, которые передаёт sql сервер при ошибке
         if self.cursor:
-            if exc_type:
-                # если на этапе выполнения произошли ошибки, но курсор при этом открыт, то скорее всего это транзакция и её надо откатить
-                self.conn.rollback()
-            else:
-                self.conn.commit()
+            self.conn.commit()
             self.cursor.close()
         if exc_type:
             raise
@@ -51,6 +47,9 @@ class SQLContextManager:
 
 
 class SQLTransactionContextManager:
+    """Контекстный менеджер с транзакцией.
+    Нужно явно вызвать conn.commit(), иначе транзакция будет откачена"""
+
     def __init__(self):
         self.conn = connect(**db_config)
         self.cursor = self.conn.cursor()
@@ -60,8 +59,8 @@ class SQLTransactionContextManager:
         return (self.conn, self.cursor)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        # в параметрах метода лежат ошибки, которые передаёт sql сервер при ошибке
         if self.cursor:
+            # Если уже был вызов conn.commit(), rollback просто ничего не сделает
             self.conn.rollback()
             self.cursor.close()
         if exc_type:

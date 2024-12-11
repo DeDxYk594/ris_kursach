@@ -4,7 +4,11 @@ endblock %} {% block content %}
 <div class="container">
   <h1>Работа с отчётами</h1>
   {% if report_types %} {% for r in report_types %}
-  <div><a href="">{{ r.name }}</a></div>
+  {% if create %}
+  <div><a href="/create_report/{{ r.id }}">{{ r.name }}</a></div>
+  {% else %}
+  <div><a href="/view_report/{{ r.id }}">{{ r.name }}</a></div>
+  {% endif %}
   {% endfor %} {% else %} В системе не настроены отчёты! {% endif %}
 </div>
 {% endblock %}

@@ -2,7 +2,7 @@ from classes import Category, GoodType, UserRole
 from database import SQLProvider, SQLContextManager, SQLTransactionContextManager
 from dataclasses import dataclass
 import math
-from flask import g
+from flask import g, request
 
 provider = SQLProvider("goods_blueprint/sql")
 
@@ -53,13 +53,12 @@ def get_all_categories() -> list[Category]:
     return ret
 
 
-def search_goods(
-    request_name: str | None,
-    category_id: str | None,
-    min_price: str | None,
-    max_price: str | None,
-    page: str | None,
-) -> SearchResults:
+def search_goods() -> SearchResults:
+    request_name = request.args.get("good_name")
+    category_id = request.args.get("category_id")
+    min_price = request.args.get("min_price")
+    max_price = request.args.get("max_price")
+    page = request.args.get("page")
     if page is None:
         page = "1"
     if request_name is None:
@@ -109,21 +108,3 @@ def search_goods(
         for row in rows:
             ret.goods.append(GoodType(*row))
     return ret
-
-
-def get_customer_orders() -> list[int]:
-    user = g.get("user", None)
-    if user is None:
-        return []
-    if user.role != UserRole.CUSTOMER:
-        return []
-
-    with SQLContextManager() as cur:
-        cur.execute(provider.get("get_orders_for_customer.sql"), [user.u_id])
-        rows = cur.fetchall()
-        if rows is None:
-            return []
-        ret = []
-        for row in rows:
-            ret.append(row[0])
-        return ret

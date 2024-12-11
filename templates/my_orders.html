@@ -2,11 +2,6 @@
 %} {% block breadcrumbs %}{% include 'components/breadcrumbs.html' %}{% endblock
 %} {% block content %}
 <div class="container">
-  {% if g.user.role==UserRole.CUSTOMER %}
-  <form method="post">
-    <button class="btn btn-primary" type="submit">Создать заказ</button>
-  </form>
-  {% endif %}
   <ul class="pagination">
     {% for p in pages %}
     <li class="page-item {% if p == page %}active{% endif %}">
@@ -36,16 +31,18 @@
         <div class="col-md-2">
           <strong>№ Заказа:</strong> {{order.order_id}}
         </div>
-        <div class="col-md-2"><strong>Статус:</strong> {{ order.status }}</div>
+        <div class="col-md-2"><strong>Статус:</strong> {{ order.status|status_name }}</div>
         <div class="col-md-2">
           <strong>Сумма:</strong> {{ order.total_price }} ₽
         </div>
         <div class="col-md-2">
           <strong>Создан:</strong> {{ order.created_at }}
         </div>
+        {% if g.user.role!=UserRole.CUSTOMER %}
         <div class="col-md-2">
           <strong>Покупатель:</strong> {{ order.customer_name }}
         </div>
+        {% endif %}
       </div>
     </div>
     <div id="orderDetails{{order.order_id}}" class="collapse">
@@ -69,13 +66,16 @@
             {% endfor %}
           </tbody>
         </table>
-        {% else %} В заказе нет строк! {% endif %} {% if order.status=="unformed" %}
+        {% else %} В заказе нет строк! {% endif %}
+        {% if g.user.role in [UserRole.CUSTOMER, UserRole.SALES_MANAGER] and order.status==OrderStatus.UNPAID %}
         <form action="/orders/delete/{{ order.order_id }}" method="post">
-          <button class="btn btn-danger">Аннулировать заказ</button>
+          <button class="btn btn-danger" type="submit" class="">Аннулировать заказ</button>
         </form>
         {% endif %}
-        {% if g.user.role==UserRole.SALES_MANAGER and order.status==OrderStatus.GOT_PAYMENT %}
-        <a href="/cargo/{{ order.order_id }}"><i class="bi-truck"></i> К отгрузке</a>
+        {% if g.user.role==UserRole.WORKER and order.status==OrderStatus.PAID %}
+        <form action="/orders/ship/{{ order.order_id }}" method="post">
+          <button class="btn btn-danger" type="submit" class="">Отгрузить заказ</button>
+        </form>
         {% endif %}
       </div>
     </div>

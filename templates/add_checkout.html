@@ -2,9 +2,8 @@
 %} {% block breadcrumbs %}{% include 'components/breadcrumbs.html' %}{% endblock
 %} {% block content %}
 <div class="container">
-  <h1>Товар успешно добавлен в заказ!</h1>
-  <div>Заказ: {{ order_id }}</div>
-  <div>Количество: {{ quantity }}</div>
+  <h1>Товар успешно добавлен в корзину!</h1>
+  <div>Количество: {{ quantity }} {{ good.measure_unit }}</div>
   <div>Артикул: {{ good.article }}</div>
   <div>Наименование: {{ good.name }}</div>
   <button id="backButton" class="btn btn-primary">Вернуться в систему</button>

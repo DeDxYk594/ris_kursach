@@ -7,6 +7,7 @@ from flask import (
     redirect,
     url_for,
     g,
+    session,
     abort,
 )
 import bcrypt
@@ -58,7 +59,7 @@ def login():
             is_internal = True
         else:
             user = requests.post(
-                "http://localhost:5002/login_external",
+                "http://127.0.0.1:5002/login_external",
                 data=json.dumps({"username": username, "password": password}),
                 headers={"Content-Type": "application/json"},
             ).json()
@@ -100,8 +101,13 @@ def authenticate_user() -> User | None:
         user = model.check_session(session_id)
         if user is None:
             g.user = None
+            return None
         else:
             g.user = user
+        if g.user.role == UserRole.CUSTOMER:
+            g.cart = session.get("cart", [])
+            g.cart_sum = sum([i[4] * i[3] for i in g.cart])
+            g.cart_quantity = len(g.cart)
         return user
     return g.user
 

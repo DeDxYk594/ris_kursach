@@ -1,4 +1,4 @@
 UPDATE `order`
-SET `status`='got_payment_unshipped',
+SET `status`='paid',
     paid_at=CURRENT_TIMESTAMP
 WHERE order_id=%s;
