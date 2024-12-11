@@ -5,18 +5,18 @@ import enum
 
 class UserRole(enum.Enum):
     CUSTOMER = "customer"
+    WORKER = "worker"
     SALES_MANAGER = "sales_manager"
     SUPPLY_MANAGER = "supply_manager"
-    BOSS_OF_THE_GYM = "boss"
 
     @staticmethod
     def to_name(r) -> str:
         r1 = UserRole(r)
         return {
             UserRole.CUSTOMER: "Покупатель",
+            UserRole.WORKER: "Работник склада",
             UserRole.SALES_MANAGER: "Менеджер по продажам",
             UserRole.SUPPLY_MANAGER: "Менеджер по закупкам",
-            UserRole.BOSS_OF_THE_GYM: "Начальник",
         }[r1]
 
 

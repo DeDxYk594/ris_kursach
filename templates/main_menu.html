@@ -28,6 +28,9 @@
   <div>
     <a class="link" href="/"><i class="bi-window-plus"></i>Создание отчётов</a>
   </div>
+  <div>
+    <a class="link" href="/"><i class="bi-card-checklist"></i>Просмотр отчётов</a>
+  </div>
   {% endif %} {% if g.user.role==UserRole.SUPPLY_MANAGER %}
   <div>
     <a class="link" href="/"><i class="bi-safe"></i>Добавить поступление</a>
@@ -38,15 +41,12 @@
   <div>
     <a class="link" href="/"><i class="bi-safe"></i>Просмотр отчётов</a>
   </div>
-  {% endif %} {% if g.user.role==UserRole.BOSS_OF_THE_GYM %}
   <div>
     <a class="link" href="/"><i class="bi-trash"></i>Списание товара</a>
   </div>
+  {% endif %} {% if g.user.role==UserRole.WORKER %}
   <div>
-    <a class="link" href="/"><i class="bi-person-vcard"></i>Управление внешними пользователями</a>
-  </div>
-  <div>
-    <a class="link" href="/"><i class="bi-card-checklist"></i>Просмотр отчётов</a>
+    <a class="link" href="/active_orders"><i class="bi-list-task"></i>Список активных заказов</a>
   </div>
   {% endif %} {% endif %}
 </div>

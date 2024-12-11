@@ -61,6 +61,14 @@ def estimate_active_orders() -> int:
             raise ValueError("Error sql query")
         return row[0]
 
+def estimate_paid_orders() -> int:
+    with SQLContextManager() as cur:
+        cur.execute(provider.get("estimate_paid_orders.sql"), [])
+        row = cur.fetchone()
+        if row is None:
+            raise ValueError("Error sql query")
+        return row[0]
+
 
 def annulate_order(order_id: int) -> bool:
     with SQLContextManager() as cur:
@@ -112,6 +120,35 @@ def add_to_order(
 
 
 def get_active_orders(page: int) -> list[Order]:
+    with SQLContextManager() as cur:
+        cur.execute(provider.get("get_active_orders.sql"), [(page - 1) * 20])
+        rows = cur.fetchall()
+        group: dict[int, Order] = {}
+        ret: list[Order] = []
+        for row in rows:
+            order_id: int = row[0]
+            if group.get(order_id, None) is None:
+                ord = Order(order_id, row[2], OrderStatus(row[1]), [], 0, row[9])
+                group[order_id] = ord
+                ret.append(ord)
+
+            if row[6] is None:
+                continue
+
+            group[order_id].lines.append(
+                OrderLine(
+                    row[3],
+                    GoodType(0, row[6], row[7], "", row[8], 0, 0, 0),
+                    row[4],
+                    row[5],
+                )
+            )
+            group[order_id].total_price += row[5] if row[5] is not None else 0
+
+        return ret
+
+
+def get_paid_orders(page: int) -> list[Order]:
     with SQLContextManager() as cur:
         cur.execute(provider.get("get_active_orders.sql"), [(page - 1) * 20])
         rows = cur.fetchall()

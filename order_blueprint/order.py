@@ -38,7 +38,7 @@ def create_order():
 
 
 @order_blueprint.route("/active_orders", methods=["GET"])
-@login_required([UserRole.SALES_MANAGER])
+@login_required([UserRole.SALES_MANAGER, UserRole.WORKER])
 def active_orders():
     g.breadcrumbs = [
         {"text": "Главное меню", "link": "/", "icon": "bi-house"},
@@ -50,8 +50,12 @@ def active_orders():
     ]
 
     page = int(request.args.get("page", 1))
-    orders = model.get_active_orders(page)
-    order_count = model.estimate_active_orders()
+    if g.user.role==UserRole.WORKER:
+        orders = model.get_active_orders(page)
+        order_count = model.estimate_active_orders()
+    elif g.user.role==UserRole.SALES_MANAGER:
+        orders = model.get_paid_orders(page)
+        order_count = model.estimate_paid_orders()
 
     pages = list(range(1, (order_count + 19) // 20 + 1))
 
