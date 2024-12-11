@@ -71,7 +71,7 @@ class OrderLine:
 class Order:
     order_id: int
     created_at: datetime
-    status: str
+    status: OrderStatus
     lines: list[OrderLine]
     total_price: int
     customer_name: str

@@ -3,19 +3,25 @@
 %} {% block content %}
 <div class="container">
   <h1>Касса</h1>
-  <form class="form-control" method="" action="/orders">
+  <form class="form-control" method="post" action="/kassa">
     <label>Номер заказа</label>
-    <input type="number" name="order_id" />
+    <input
+      type="number"
+      class="form-control"
+      name="order_id"
+      value="{% if order %}{{ order.order_id }}{% endif %}"
+    />
     <button type="submit" class="btn btn-primary">Найти заказ</button>
   </form>
   {% if order %}
   <div>
     Номер заказа: {{ order.order_id }} Сумма к оплате:
     <strong>{{ order.total_price }}</strong>
-    <form class="form-control" method="" action="/orders">
+    <form class="form-control" method="post" action="/orders/pay_order">
       Для оплаты введите пароль
-      <label>Номер заказа</label>
-      <input type="password" name="password" />
+      <div>Номер заказа: {{ order.order_id }}</div>
+      <input class="form-control" type="hidden" name="order_id" value="{{ order.order_id }}" />
+      <input class="form-control" type="password" name="password" />
       <button type="submit" class="btn btn-primary">
         Зафиксировать оплату
       </button>

@@ -1,4 +1,13 @@
-from .classes import Order, OrderLine, GoodType, User, ReportType, UserRole, OrderStatus
+from .classes import (
+    Order,
+    OrderLine,
+    GoodType,
+    User,
+    ReportType,
+    UserRole,
+    OrderStatus,
+    Category,
+)
 
 __all__ = [
     "Order",
@@ -8,4 +17,5 @@ __all__ = [
     "ReportType",
     "UserRole",
     "OrderStatus",
+    "Category",
 ]

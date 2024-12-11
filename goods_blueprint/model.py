@@ -1,4 +1,4 @@
-from classes.classes import Category, GoodType
+from classes import Category, GoodType, UserRole
 from database import SQLProvider, SQLContextManager, SQLTransactionContextManager
 from dataclasses import dataclass
 import math
@@ -115,7 +115,7 @@ def get_customer_orders() -> list[int]:
     user = g.get("user", None)
     if user is None:
         return []
-    if user.role != "customer":
+    if user.role != UserRole.CUSTOMER:
         return []
 
     with SQLContextManager() as cur:

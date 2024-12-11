@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `internal_user` (
     real_name     TEXT        NOT NULL,
     created_at    DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at    DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    role          ENUM('sales_manager','supply_manager','boss') NOT NULL,
+    role          ENUM('worker','sales_manager','supply_manager') NOT NULL,
     password_hash TEXT        NOT NULL
 );
 
@@ -91,20 +91,21 @@ CREATE TABLE IF NOT EXISTS `batch` (
     updated_at        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     supply_unit_price INTEGER  NOT NULL,
     supply_size       INTEGER  NOT NULL,
-    units_left        INTEGER  NOT NULL,
     goodtype_id       INTEGER  NOT NULL,
 
+    CHECK(supply_size>0),
     FOREIGN KEY (goodtype_id) REFERENCES `goodtype` (goodtype_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 -- Строка заказа
 CREATE TABLE IF NOT EXISTS `orderline` (
-    orderline_id INTEGER PRIMARY KEY AUTO_INCREMENT,
-    goodtype_id  INTEGER NOT NULL,
-    order_id     INTEGER NOT NULL,
-    quantity     INTEGER NOT NULL,
-    price        INTEGER, -- выставляется только при оплате, хранится для статистики
+    orderline_id     INTEGER PRIMARY KEY AUTO_INCREMENT,
+    goodtype_id      INTEGER NOT NULL,
+    order_id         INTEGER NOT NULL,
+    quantity         INTEGER NOT NULL,
+    price            INTEGER, -- выставляется только при оплате, хранится для статистики
 
+    CHECK(quantity>0),
     FOREIGN KEY (goodtype_id) REFERENCES goodtype (goodtype_id) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY (order_id) REFERENCES `order` (order_id) ON UPDATE CASCADE ON DELETE CASCADE
 );

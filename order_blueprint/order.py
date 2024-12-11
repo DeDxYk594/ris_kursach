@@ -68,7 +68,7 @@ def active_orders():
     )
 
 
-@order_blueprint.route("/kassa")
+@order_blueprint.route("/kassa", methods=["GET", "POST"])
 @login_required([UserRole.SALES_MANAGER])
 def kassa():
     g.breadcrumbs = [
@@ -79,19 +79,31 @@ def kassa():
             "icon": "bi-safe",
         },
     ]
-    return render_template("kassa.html")
+    order_id = request.form.get("order_id")
+    if order_id is None:
+        return render_template("kassa.html")
+
+    order = model.get_unpaid_order(order_id)
+    if order is None:
+        return render_template(
+            "success.html",
+            is_success=False,
+            message=f"Заказ с номером {order_id} не найден или имеет другой статус",
+        )
+    return render_template("kassa.html", order=order)
 
 
 @order_blueprint.route("/orders/delete/<int:order_id>", methods=["POST"])
-@login_required([UserRole.CUSTOMER])
+@login_required([UserRole.CUSTOMER, UserRole.SALES_MANAGER])
 def cancel_order(order_id: int):
-    is_success = model.annulate_order(g.user.u_id, order_id)
-
-    # TODO навести суету
+    if g.user.role == UserRole.SALES_MANAGER:
+        is_success = model.annulate_order(order_id)
+    else:
+        is_success = model.annulate_my_order(g.user.u_id, order_id)
 
     return render_template(
         "success.html",
-        is_success=True,
+        is_success=is_success,
     )
 
 
@@ -111,4 +123,17 @@ def add_to_order():
         good=good,
         order_id=request.form["order_id"],
         quantity=request.form["quantity"],
+    )
+
+
+@order_blueprint.route("/orders/pay_order", methods=["POST"])
+@login_required([UserRole.SALES_MANAGER])
+def pay_order():
+    order = model.pay_order()
+
+    if isinstance(order, str):
+        return render_template("success.html", is_success=False, message=order)
+
+    return render_template(
+        "success.html", is_success=True, message=f"Заказ {order.order_id} оплачен!"
     )

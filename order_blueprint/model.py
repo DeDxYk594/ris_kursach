@@ -1,5 +1,9 @@
-from classes import GoodType, Order, OrderLine
+from classes import GoodType, Order, OrderLine, OrderStatus
 from database import SQLContextManager, SQLProvider, SQLTransactionContextManager
+from flask import g, request
+import bcrypt
+from datetime import datetime
+
 
 provider = SQLProvider("order_blueprint/sql")
 
@@ -48,6 +52,7 @@ def estimate_customer_orders(ext_u_id: int) -> int:
             raise ValueError("Error sql query")
         return row[0]
 
+
 def estimate_active_orders() -> int:
     with SQLContextManager() as cur:
         cur.execute(provider.get("estimate_active_orders.sql"), [])
@@ -57,11 +62,19 @@ def estimate_active_orders() -> int:
         return row[0]
 
 
-def annulate_order(ext_u_id: int, order_id: int) -> bool:
+def annulate_order(order_id: int) -> bool:
     with SQLContextManager() as cur:
-        cur.execute(provider.get("annulate_order.sql"), [order_id, ext_u_id])
-        row = cur.fetchone()
-        if row is None:
+        cur.execute(provider.get("annulate_order.sql"), [order_id])
+        if cur.rowcount == 0:
+            return False
+
+    return True
+
+
+def annulate_my_order(ext_u_id: int, order_id: int) -> bool:
+    with SQLContextManager() as cur:
+        cur.execute(provider.get("annulate_my_order.sql"), [order_id, ext_u_id])
+        if cur.rowcount == 0:
             return False
 
     return True
@@ -107,7 +120,7 @@ def get_active_orders(page: int) -> list[Order]:
         for row in rows:
             order_id: int = row[0]
             if group.get(order_id, None) is None:
-                ord = Order(order_id, row[2], row[1], [], 0, row[9])
+                ord = Order(order_id, row[2], OrderStatus(row[1]), [], 0, row[9])
                 group[order_id] = ord
                 ret.append(ord)
 
@@ -125,3 +138,45 @@ def get_active_orders(page: int) -> list[Order]:
             group[order_id].total_price += row[5] if row[5] is not None else 0
 
         return ret
+
+
+def get_unpaid_order(order_id: int) -> Order | None:
+    with SQLContextManager() as cur:
+        cur.execute(provider.get("get_unpaid_order.sql"), [order_id])
+        rows = cur.fetchall()
+        if not rows:
+            return None
+        row0 = rows[0]
+        ret: Order = Order(
+            order_id=order_id,
+            created_at=row0[2],
+            status=OrderStatus(row0[1]),
+            lines=[],
+            total_price=sum([i[5] for i in rows]),
+            customer_name=row0[9],
+        )
+        return ret
+
+
+def pay_order() -> Order | str:
+    order_id = int(request.form["order_id"])
+    password: str = request.form["password"]
+    user_id = g.user.u_id
+    with SQLTransactionContextManager() as (conn, cur):
+        cur.execute(provider.get("get_password_hash.sql"), [user_id])
+        row = cur.fetchone()
+        if row is None:
+            return "Неизвестная ошибка"
+        if not bcrypt.checkpw(
+            password.encode(encoding="utf-8"), row[0].encode(encoding="utf-8")
+        ):
+            return "Неправильный пароль"
+        cur.execute(provider.get("get_unpaid_order.sql"), [order_id])
+        if not cur.fetchone():
+            return "Не найден заказ или заказ имеет не тот статус"
+        cur.execute(provider.get("pay_lines.sql"), [order_id])
+        cur.execute(provider.get("pay_order.sql"), [order_id])
+        conn.commit()
+        return Order(
+            order_id, datetime.now(), OrderStatus("got_payment_unshipped"), [], 0, ""
+        )

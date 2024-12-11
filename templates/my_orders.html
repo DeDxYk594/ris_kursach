@@ -69,11 +69,13 @@
             {% endfor %}
           </tbody>
         </table>
-        {% else %} В заказе нет строк! {% endif %} {% if order.status in
-        ["unformed", "booked"] %}
+        {% else %} В заказе нет строк! {% endif %} {% if order.status=="unformed" %}
         <form action="/orders/delete/{{ order.order_id }}" method="post">
           <button class="btn btn-danger">Аннулировать заказ</button>
         </form>
+        {% endif %}
+        {% if g.user.role==UserRole.SALES_MANAGER and order.status==OrderStatus.GOT_PAYMENT %}
+        <a href="/cargo/{{ order.order_id }}"><i class="bi-truck"></i> К отгрузке</a>
         {% endif %}
       </div>
     </div>

@@ -10,7 +10,7 @@ AS o
 LEFT JOIN orderline AS l ON l.order_id=o.order_id
 LEFT JOIN goodtype AS g ON g.goodtype_id=l.goodtype_id
 JOIN customer AS c USING(customer_id)
-ORDER BY (CASE ord.`status`
+ORDER BY (CASE o.`status`
     WHEN 'got_payment_unshipped' THEN 1
     WHEN 'booked' THEN 2
     WHEN 'unformed' THEN 3

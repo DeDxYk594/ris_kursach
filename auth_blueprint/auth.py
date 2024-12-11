@@ -13,6 +13,8 @@ import bcrypt
 from typing import Callable
 from . import model
 from classes import User, UserRole
+import json
+import requests
 
 SESSION_COOKIE_NAME = "session_id"
 
@@ -46,22 +48,30 @@ def login():
                     errors={"username": "Такого пользователя не существует"},
                     username=username,
                 )
-        else:
-            user = model.get_external_user(username)
-            if user is None:
+            if not check_password(user.password_hash, password):
                 return render_template(
                     "login.html",
-                    errors={"username": "Такого пользователя не существует"},
+                    errors={"password": "Неправильный пароль"},
                     username=username,
                 )
+            user_id = user.u_id
+            is_internal = True
+        else:
+            user = requests.post(
+                "http://localhost:5002/login_external",
+                data=json.dumps({"username": username, "password": password}),
+                headers={"Content-Type": "application/json"},
+            ).json()
+            if not user["success"]:
+                return render_template(
+                    "login.html",
+                    errors={"username": "Неправильный логин или пароль"},
+                    username=username,
+                )
+            user_id = user["u_id"]
+            is_internal = False
 
-        if not check_password(user.password_hash, password):
-            return render_template(
-                "login.html",
-                errors={"password": "Неправильный пароль"},
-                username=username,
-            )
-        session_id = model.insert_session(user)
+        session_id = model.insert_session(user_id, is_internal)
         resp = make_response(redirect(request.args.get("next", "/")))
         resp.set_cookie(SESSION_COOKIE_NAME, session_id)
         return resp

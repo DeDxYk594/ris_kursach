@@ -45,7 +45,7 @@ def delete_another_sessions(session_id: str):
         cur.execute(provider.get("delete_another_sessions.sql"), [session_id])
 
 
-def insert_session(user: User) -> str:
+def insert_session(user_id: int, is_internal: bool) -> str:
     """Добавить сессию для данного пользователя. Возвращает ID новой сессии"""
     session_id = generate_secure_id()
     with SQLContextManager() as cur:
@@ -53,8 +53,8 @@ def insert_session(user: User) -> str:
             provider.get("insert_session.sql"),
             [
                 session_id,
-                user.u_id if user.role == "customer" else None,
-                user.u_id if user.role != "customer" else None,
+                user_id if not is_internal else None,
+                user_id if is_internal else None,
             ],
         )
     return session_id
