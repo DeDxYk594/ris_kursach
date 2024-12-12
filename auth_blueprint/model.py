@@ -13,7 +13,6 @@ def generate_secure_id() -> str:
 def check_session(session_id: str) -> User | None:
     """Проверить сессию. Если сессия валидна, возвращает пользователя. Если невалидна, возвращает None"""
     with SQLContextManager() as cur:
-        print("SESS CHECK: ", session_id)
         cur.execute(
             provider.get("check_session.sql"),
             [

@@ -1,7 +1,15 @@
-{% extends 'components/base.html' %} {% block title %}Работа с отчётами{%
-endblock %} {% block breadcrumbs %}{% include 'components/breadcrumbs.html' %}{%
-endblock %} {% block content %}
+{% extends 'components/base.html' %} {% block title %}Работа с
+отчётами{%endblock %}{% block content %}
 <div class="container">
-  <h1>Отчёт: {{ report_type.name }}</h1>
+  <h1>Создание отчёта: {{ report_type.name }}</h1>
+  <form class="form-control" method="post">
+    {% for param in report_type.params %}
+    <div class="mb-3" style="display: flex; flex-direction: column">
+      <label>{{ param[0] }}</label>
+      <input class="form-control" type="number" name="param{{ loop.index-1 }}" />
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Создать отчёт</button>
+  </form>
 </div>
 {% endblock %}

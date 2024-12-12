@@ -8,7 +8,6 @@ CREATE TABLE IF NOT EXISTS `customer` (
     bik           TEXT    NOT NULL,
     acc_num       TEXT    NOT NULL,
     bank_name     TEXT    NOT NULL,
-    money_spent   INTEGER NOT NULL DEFAULT 0
 );
 
 -- Внешний пользователь
@@ -55,7 +54,6 @@ CREATE TABLE IF NOT EXISTS `category` (
 -- Номенклатура товара
 CREATE TABLE IF NOT EXISTS `goodtype` (
     goodtype_id  INTEGER PRIMARY KEY AUTO_INCREMENT,
-    article      INTEGER NOT NULL,
     name         TEXT    NOT NULL,
     category_id  INTEGER NOT NULL,
     is_hidden    BOOLEAN NOT NULL DEFAULT FALSE,
@@ -113,14 +111,14 @@ CREATE TABLE IF NOT EXISTS `orderline` (
 
 -- Списание товара из-за дефекта
 CREATE TABLE IF NOT EXISTS `defect_writeoff` (
-    dw_id     INTEGER  PRIMARY KEY AUTO_INCREMENT,
-    batch_id  INTEGER  NOT NULL,
-    quantity  INTEGER  NOT NULL,
-    defect_at DATETIME NOT NULL,
-    reason    TEXT     NOT NULL,
+    dw_id       INTEGER  PRIMARY KEY AUTO_INCREMENT,
+    goodtype_id INTEGER  NOT NULL,
+    quantity    INTEGER  NOT NULL,
+    defect_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    reason      TEXT     NOT NULL,
 
     CHECK(quantity>0),
-    FOREIGN KEY (batch_id) REFERENCES `batch` (batch_id) ON UPDATE CASCADE ON DELETE CASCADE
+    FOREIGN KEY (goodtype_id) REFERENCES `goodtype` (goodtype_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 -- Таблица для обычных отчётов

@@ -2,7 +2,11 @@
 endblock %} {% block breadcrumbs %}{% include 'components/breadcrumbs.html' %}{%
 endblock %} {% block content %}
 <div class="container">
-  <h1>Работа с отчётами</h1>
+  {% if create %}
+  <h1>Создание отчётов</h1>
+  {% else %}
+  <h1>Просмотр отчётов</h1>
+  {% endif %}
   {% if report_types %} {% for r in report_types %}
   {% if create %}
   <div><a href="/create_report/{{ r.id }}">{{ r.name }}</a></div>

@@ -1,4 +1,4 @@
-SELECT gt.goodtype_id, gt.article, gt.name,
+SELECT gt.goodtype_id, gt.goodtype_id, gt.name,
     cat.category_name,
     gt.measure_unit,
     gt.has_units,

@@ -19,7 +19,7 @@
       "Списано единиц",
       "Списано на сумму"
     ],
-    "procedure_name": "report_procedure",
-    "get_sql": "get_common_report.sql"
+    "procedure_name": "add_common_report",
+    "get_sql": "SELECT g.name, r.units_sold, r.money_sold, r.units_supplied, r.money_supplied, r.units_wrote, r.money_wrote FROM common_report AS r JOIN goodtype AS g USING(goodtype_id) WHERE r.goodtype_id=%s AND r.year=%s AND r.month=%s AND r.day=%s;"
   }
 ]

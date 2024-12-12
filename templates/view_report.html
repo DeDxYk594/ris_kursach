@@ -2,5 +2,29 @@
 отчётами{%endblock %}{% block content %}
 <div class="container">
   <h1>Отчёт: {{ report_type.name }}</h1>
+  {% if report %}
+  <table>
+    <tr>
+        {% for val in report_type.values %}
+        <th>{{ val }}</th>
+        {% endfor %}
+    </tr>
+    <tr>
+        {% for val in report %}
+        <td>{{ val }}</td>
+        {% endfor %}
+    </tr>
+  </table>
+  {% else %}
+  <form class="form-control" method="post">
+    {% for param in report_type.params %}
+    <div class="mb-3" style="display: flex; flex-direction: column">
+      <label>{{ param[0] }}</label>
+      <input class="form-control" type="number" name="param{{ loop.index-1 }}" />
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Заказать отчёт</button>
+  </form>
+  {% endif %}
 </div>
 {% endblock %}

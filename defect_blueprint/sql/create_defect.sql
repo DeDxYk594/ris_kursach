@@ -1,2 +1,2 @@
-INSERT INTO `defect_writeoff` (batch_id, quantity, defect_at)
-VALUES (%s, %s, NOW());
+INSERT INTO `defect_writeoff` (goodtype_id, quantity, reason)
+VALUES (%s, %s, %s);

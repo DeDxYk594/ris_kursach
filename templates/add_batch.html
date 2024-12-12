@@ -1,0 +1,22 @@
+{% extends 'components/base.html' %} {% block title %}Добавить
+поступление{%endblock %}{% block content %}
+<div class="container">
+  <h1>Добавить поступление</h1>
+  <form class="form-control" method="post">
+    <div class="mb-3" style="display: flex; flex-direction: column">
+      <label>Артикул товара</label>
+      <input class="form-control" type="number" name="goodtype_id" />
+    </div>
+    <div class="mb-3" style="display: flex; flex-direction: column">
+      <label>Количество единиц</label>
+      <input class="form-control" type="number" name="supply_size" />
+    </div>
+    <div class="mb-3" style="display: flex; flex-direction: column">
+      <label>Закупочная стоимость единицы товара</label>
+      <input class="form-control" type="number" name="supply_unit_price" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Добавить поступление</button>
+  </form>
+</div>
+{% endblock %}

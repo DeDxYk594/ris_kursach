@@ -1,0 +1,32 @@
+{% extends 'components/base.html' %} {% block title %}Списание товара{%endblock
+%}{% block content %}
+<div class="container">
+  <h1>Списание товара</h1>
+  <form class="form-control" method="post">
+    <div class="mb-3" style="display: flex; flex-direction: column">
+      <label>Артикул товара</label>
+      <input
+        class="form-control"
+        type="number"
+        name="goodtype_id"
+      />
+    </div>
+    <div class="mb-3" style="display: flex; flex-direction: column">
+      <label>Количество</label>
+      <input
+        class="form-control"
+        type="number"
+        name="quantity"
+      />
+    </div>
+    <div class="mb-3" style="display: flex; flex-direction: column">
+      <label>Причина списания</label>
+      <input
+        class="form-control"
+        name="reason"
+      />
+    </div>
+    <button type="submit" class="btn btn-primary">Списать</button>
+  </form>
+</div>
+{% endblock %}

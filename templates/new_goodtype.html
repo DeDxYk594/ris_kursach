@@ -1,0 +1,57 @@
+{% extends 'components/base.html' %} {% block title %}Списание товара{%endblock
+%}{% block content %}
+<div class="container">
+  <h1>Добавить номенклатуру</h1>
+  <form class="form-control" method="post">
+    <div class="mb-3" style="display: flex; flex-direction: column">
+      <label>Артикул товара</label>
+      <input
+        class="form-control"
+        type="number"
+        name="goodtype_id"
+      />
+    </div>
+    <div class="mb-3" style="display: flex; flex-direction: column">
+      <label>Цена единицы</label>
+      <input
+        class="form-control"
+        type="number"
+        name="sell_price"
+      />
+    </div>
+    <div class="mb-3" style="display: flex; flex-direction: column">
+      <label>Единица измерения</label>
+      <input
+        class="form-control"
+        name="measure_unit"
+      />
+    </div>
+    <div class="mb-3" style="display: flex; flex-direction: column">
+      <label>Название товара</label>
+      <input
+        class="form-control"
+        name="name"
+      />
+    </div>
+    <label for="category">Категория:</label>
+    <select
+      id="category"
+      name="category_id"
+      class="form-control"
+    >
+      <option value="">Все категории</option>
+      {% for cat in g.all_categories %}
+      <option value="{{ cat.category_id }}"
+      {%if search_result %}
+      {% if search_result.request_cat==cat.category_id %}selected{% endif %}
+      {% endif %}
+      >
+        {{ cat.category_name }} (уже есть {{ cat.goodtypes_count }} товаров)
+      </option>
+      {% endfor %}
+    </select>
+    <div style="height: 40px;"></div>
+    <button type="submit" class="btn btn-primary">Добавить категорию товара</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,6 +1,6 @@
 SELECT o.order_id, o.`status`, o.created_at,
 l.orderline_id, l.quantity, COALESCE(l.price, l.quantity*g.sell_price),
-g.article, g.name, g.measure_unit
+g.goodtype_id, g.name, g.measure_unit
 FROM (SELECT ord.order_id, ord.`status`, ord.created_at, ord.customer_id
     FROM `order` AS ord
     JOIN external_user AS u ON u.customer_id=ord.customer_id
