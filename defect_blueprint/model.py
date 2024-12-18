@@ -9,7 +9,10 @@ def writeoff():
     quantity = int(request.form["quantity"])
     reason = request.form["reason"]
     with SQLTransactionContextManager() as (conn, cur):
-        cur.execute(provider.get("create_defect.sql"), [goodtype_id, quantity, reason])
+        cur.execute(
+            provider.get("create_defect.sql"),
+            [goodtype_id, quantity, reason, quantity, goodtype_id],
+        )
         cur.execute(provider.get("remove_from_good.sql"), [quantity, goodtype_id])
         conn.commit()
         return True

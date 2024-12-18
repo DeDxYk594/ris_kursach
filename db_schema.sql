@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS `customer` (
     contract_date DATE    NOT NULL,
     bik           TEXT    NOT NULL,
     acc_num       TEXT    NOT NULL,
-    bank_name     TEXT    NOT NULL,
+    bank_name     TEXT    NOT NULL
 );
 
 -- Внешний пользователь
@@ -116,24 +116,44 @@ CREATE TABLE IF NOT EXISTS `defect_writeoff` (
     quantity    INTEGER  NOT NULL,
     defect_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     reason      TEXT     NOT NULL,
+    money       INTEGER  NOT NULL,
 
     CHECK(quantity>0),
     FOREIGN KEY (goodtype_id) REFERENCES `goodtype` (goodtype_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
--- Таблица для обычных отчётов
-CREATE TABLE `common_report` (
+-- Отчёт по продажам
+CREATE TABLE `sell_report` (
     goodtype_id INTEGER NOT NULL,
     year        INTEGER NOT NULL,
     month       INTEGER NOT NULL,
-    day         INTEGER NOT NULL,
 
     units_sold      INTEGER NOT NULL,
     money_sold      INTEGER NOT NULL,
+
+    PRIMARY KEY(goodtype_id, year, month)
+);
+
+-- Отчёт по закупкам
+CREATE TABLE `supply_report` (
+    goodtype_id INTEGER NOT NULL,
+    year        INTEGER NOT NULL,
+    month       INTEGER NOT NULL,
+
     units_supplied  INTEGER NOT NULL,
     money_supplied  INTEGER NOT NULL,
+
+    PRIMARY KEY(goodtype_id, year, month)
+);
+
+-- Отчёт по списаниям
+CREATE TABLE `writeoff_report` (
+    goodtype_id INTEGER NOT NULL,
+    year        INTEGER NOT NULL,
+    month       INTEGER NOT NULL,
+
     units_wrote     INTEGER NOT NULL,
     money_wrote     INTEGER NOT NULL,
 
-    PRIMARY KEY(goodtype_id, year, month, day)
+    PRIMARY KEY(goodtype_id, year, month)
 );

@@ -1,25 +1,48 @@
 [
   {
-    "name": "Общий отчёт",
+    "name": "Отчёт о продажах",
     "params": [
-      {
-        "name": "Артикул товара",
-        "type": "int"
-      },
       { "name": "Год", "type": "int" },
-      { "name": "Месяц", "type": "int" },
-      { "name": "День", "type": "int" }
+      { "name": "Месяц", "type": "int" }
     ],
     "values": [
+      "Артикул",
       "Название товара",
       "Продано единиц",
-      "Продано на сумму",
-      "Закуплено единиц",
-      "Закуплено на сумму",
-      "Списано единиц",
-      "Списано на сумму"
+      "Продано на сумму"
     ],
-    "procedure_name": "add_common_report",
-    "get_sql": "SELECT g.name, r.units_sold, r.money_sold, r.units_supplied, r.money_supplied, r.units_wrote, r.money_wrote FROM common_report AS r JOIN goodtype AS g USING(goodtype_id) WHERE r.goodtype_id=%s AND r.year=%s AND r.month=%s AND r.day=%s;"
+    "procedure_name": "create_sell_report",
+    "get_sql": "SELECT g.goodtype_id, g.name, r.units_sold, r.money_sold FROM sell_report AS r JOIN goodtype AS g USING(goodtype_id) WHERE r.year=%s AND r.month=%s;"
+  },
+  {
+    "name": "Отчёт о закупках",
+    "params": [
+      { "name": "Год", "type": "int" },
+      { "name": "Месяц", "type": "int" }
+    ],
+    "values": [
+      "Артикул",
+      "Название товара",
+      "Закуплено единиц",
+      "Закуплено на сумму"
+    ],
+    "procedure_name": "create_supply_report",
+    "get_sql": "SELECT g.goodtype_id, g.name, r.units_supplied, r.money_supplied FROM supply_report AS r JOIN goodtype AS g USING(goodtype_id) WHERE r.year=%s AND r.month=%s;"
+  },
+  {
+    "name": "Отчёт о списаниях",
+    "params": [
+      { "name": "Год", "type": "int" },
+      { "name": "Месяц", "type": "int" }
+    ],
+    "values": [
+      "Артикул",
+      "Название товара",
+      "Списано единиц",
+      "Единица измерения",
+      "Денег потеряно"
+    ],
+    "procedure_name": "create_writeoff_report",
+    "get_sql": "SELECT g.goodtype_id, g.name, r.units_wrote, g.measure_unit, r.money_wrote FROM writeoff_report AS r JOIN goodtype AS g USING(goodtype_id) WHERE r.year=%s AND r.month=%s;"
   }
 ]

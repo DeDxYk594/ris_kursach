@@ -97,7 +97,7 @@ def view_report(report_id: int):
         return render_template("view_report.html", report_type=report_types[report_id])
 
     report = model.get_report(report_types[report_id])
-    if report is None:
+    if len(report) == 0:
         return render_template(
             "success.html", is_success=False, message="Отчёт не найден"
         )

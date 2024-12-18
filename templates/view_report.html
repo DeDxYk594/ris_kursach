@@ -1,5 +1,4 @@
-{% extends 'components/base.html' %} {% block title %}Работа с
-отчётами{%endblock %}{% block content %}
+{% extends 'components/base.html' %} {% block title %}Просмотр отчётов{%endblock %}{% block content %}
 <div class="container">
   <h1>Отчёт: {{ report_type.name }}</h1>
   {% if report %}
@@ -9,11 +8,13 @@
         <th>{{ val }}</th>
         {% endfor %}
     </tr>
+    {% for row in report %}
     <tr>
-        {% for val in report %}
+        {% for val in row %}
         <td>{{ val }}</td>
         {% endfor %}
     </tr>
+    {% endfor %}
   </table>
   {% else %}
   <form class="form-control" method="post">

@@ -9,11 +9,14 @@ def get_report(typ: ReportType) -> tuple | None:
         params.append(int(request.form[f"param{i}"]))
     with SQLContextManager() as cur:
         cur.execute(typ.get_sql, params)
-        row = cur.fetchone()
-        return row
+        rows = cur.fetchall()
+        return rows
 
 
 def create_report(typ: ReportType) -> str:
+    rep=get_report(typ)
+    if(len(rep)):
+        return "Отчёт уже существует, перезапись запрещена"
     params = []
     for i in range(len(typ.params)):
         params.append(str(int(request.form[f"param{i}"])))
